@@ -3,382 +3,722 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#07111c">
 <title>Lagos Hustle</title>
+
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#07111c;color:white;font-family:Arial,sans-serif;touch-action:none}
-canvas{display:block}
-#loading,#login,#hud,#phone{position:fixed;inset:0}
-#loading{z-index:10;display:flex;align-items:center;justify-content:center;flex-direction:column;background:#07111c}
-#loading h1{color:#32b7ff}
-#login{z-index:8;display:none;align-items:center;justify-content:center;background:#07111c;padding:20px}
-.box{width:min(380px,95vw);padding:24px;background:#0c1d2c;border:1px solid #29465c;border-radius:20px}
-h1,h2{color:#46baff}
-input{width:100%;padding:14px;border-radius:10px;border:1px solid #34536b;background:#06121d;color:white;margin:8px 0}
-button{border:1px solid #ffffff30;background:#142c40;color:white;border-radius:12px;padding:12px;font-weight:bold}
-#login button{width:100%;background:#168ee0;margin-top:8px}
-#hud{z-index:5;display:none;pointer-events:none}
-#top{position:absolute;top:12px;left:12px;right:12px;display:flex;justify-content:space-between;align-items:flex-start}
-.info{background:#07111ce8;border:1px solid #ffffff25;border-radius:12px;padding:10px 12px;font-size:13px}
-#cash{color:#58ee93;font-weight:bold}
-#phoneButton{pointer-events:auto;border-radius:50%;width:50px;height:50px;font-size:23px;padding:0}
-#joystick{position:absolute;left:22px;bottom:24px;width:135px;height:135px;border:2px solid #ffffff40;border-radius:50%;background:#ffffff18;pointer-events:auto}
-#stick{position:absolute;left:38px;top:38px;width:55px;height:55px;border-radius:50%;background:#168ee0dd;border:2px solid #ffffff70}
-#actions{position:absolute;right:12px;bottom:22px;display:flex;flex-direction:column;gap:8px;pointer-events:auto}
-.row{display:flex;gap:7px}
-.action{min-width:66px;min-height:47px}
-.blue{background:#168ee0}
-#toast{position:fixed;z-index:20;top:75px;left:50%;transform:translateX(-50%);background:#0b1c2a;border:1px solid #34536b;padding:12px 16px;border-radius:12px;display:none;text-align:center;max-width:90vw}
-#phone{z-index:15;display:none;align-items:center;justify-content:center;background:#000b;padding:18px}
-#phone .box{max-height:85vh;overflow:auto}
-#phone button{margin:4px}
-@media(orientation:portrait){#login:has(+ #hud[style*="display: block"]){display:flex}}
+#game{position:fixed;inset:0}
+canvas{display:block;width:100%;height:100%}
+#loading{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#07111c;z-index:20;font-size:18px}
+#login{position:fixed;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#09233a,#07111c 65%);padding:24px}
+.panel{width:min(380px,100%);background:#102235;border:1px solid #25445c;border-radius:24px;padding:26px;box-shadow:0 20px 70px #0008}
+.logo{font-size:32px;font-weight:900;letter-spacing:-1px}
+.logo span{color:#23c8ff}
+.sub{color:#a9c0d1;font-size:14px;line-height:1.5}
+input{width:100%;padding:15px;border:1px solid #35556b;border-radius:12px;background:#071725;color:white;font-size:16px;margin:15px 0}
+button{border:0;border-radius:12px;padding:13px 16px;background:#087fce;color:white;font-weight:800;font-size:14px;cursor:pointer;touch-action:manipulation}
+button:active{transform:scale(.96)}
+.primary{width:100%;padding:16px}
+#hud{position:fixed;inset:0;pointer-events:none;display:none}
+.hudbox{position:absolute;top:14px;left:14px;background:#071725d9;border:1px solid #ffffff25;border-radius:14px;padding:10px 14px;min-width:145px}
+.small{font-size:11px;color:#a9c0d1}
+.money{font-size:20px;font-weight:900;color:#55f0a1;margin-top:4px}
+#jobStatus{font-size:12px;color:#ffd36a;margin-top:5px}
+#rightTop{position:absolute;top:14px;right:14px;display:flex;gap:8px;pointer-events:auto}
+#rightTop button{padding:11px 13px;background:#10283bdc;border:1px solid #ffffff30}
+#controls{position:absolute;left:0;right:0;bottom:max(20px,env(safe-area-inset-bottom));height:155px}
+#joyBase{position:absolute;left:22px;bottom:0;width:125px;height:125px;border-radius:50%;background:#d7edff20;border:2px solid #ffffff55;pointer-events:auto;touch-action:none}
+#joyKnob{position:absolute;width:52px;height:52px;border-radius:50%;background:#d7edffb0;border:2px solid white;left:34px;top:34px;pointer-events:none}
+.actions{position:absolute;right:18px;bottom:4px;display:flex;align-items:flex-end;gap:10px;pointer-events:auto}
+.actions button{width:64px;height:64px;border-radius:50%;padding:5px;background:#087fcedd;border:2px solid #ffffff65;box-shadow:0 5px 18px #0005}
+.actions .run{width:55px;height:55px;background:#ed8b16e8}
+#jobBtn{position:absolute;right:20px;bottom:170px;pointer-events:auto;background:#13a96b;border:1px solid #aaffd5}
+#phonePanel{display:none;position:absolute;right:14px;top:65px;width:210px;padding:15px;background:#0b1d2bea;border:1px solid #ffffff40;border-radius:18px;pointer-events:auto}
+#phonePanel button{width:100%;margin-top:8px}
+#toast{position:absolute;left:50%;top:26%;transform:translateX(-50%);background:#071725ed;border:1px solid #ffffff40;border-radius:14px;padding:12px 18px;display:none;white-space:nowrap;font-size:14px}
+#help{position:absolute;left:50%;top:14px;transform:translateX(-50%);color:#e7f5ffb8;font-size:11px;text-align:center;white-space:nowrap}
+@media(min-width:800px){#joyBase{left:35px;width:140px;height:140px}#joyKnob{left:42px;top:42px}#controls{bottom:25px}}
 </style>
 </head>
+
 <body>
-<div id="loading"><h1>LAGOS HUSTLE</h1><p>Preparing your city...</p></div>
+<div id="game"></div>
+
+<div id="loading">Loading Lagos Hustle...</div>
 
 <div id="login">
- <div class="box">
-  <h1 style="text-align:center">LAGOS HUSTLE</h1>
-  <p>Start your own life in Lagos.</p>
-  <input id="playerName" maxlength="18" placeholder="Enter your player name">
-  <button id="play">ENTER CITY</button>
-  <p style="font-size:12px;color:#9cb1c4">Single-player test version</p>
- </div>
+  <div class="panel">
+    <div class="logo">LAGOS <span>HUSTLE</span></div>
+    <p class="sub">Explore the city. Find jobs. Make money. Build your story.</p>
+    <label for="playerName" class="small">YOUR PLAYER NAME</label>
+    <input id="playerName" maxlength="18" placeholder="Enter your name" autocomplete="off">
+    <button id="startBtn" class="primary">ENTER THE CITY →</button>
+    <p class="sub">Single-player city adventure</p>
+  </div>
 </div>
 
 <div id="hud">
- <div id="top">
-  <div class="info">
-   <div id="name">Player</div>
-   <div>Cash: <span id="cash">₦1,000</span></div>
-   <div style="color:#62e5a0;font-size:11px;margin-top:4px">OFFLINE MODE · SINGLE PLAYER</div>
+  <div class="hudbox">
+    <div class="small">PLAYER</div>
+    <div id="hudName" style="font-weight:800;margin-top:3px">Player</div>
+    <div class="money" id="money">₦0</div>
+    <div id="jobStatus">Explore Lagos</div>
   </div>
-  <button id="phoneButton">📱</button>
- </div>
- <div id="joystick"><div id="stick"></div></div>
- <div id="actions">
-  <div class="row"><button id="run" class="action blue">RUN</button><button id="jump" class="action">JUMP</button></div>
-  <div class="row"><button id="job" class="action">JOB +₦500</button><button id="interact" class="action">ENTER</button></div>
- </div>
-</div>
 
-<div id="phone">
- <div class="box">
-  <h2>📱 Player Phone</h2>
-  <p id="phoneName"></p>
-  <p id="phoneCash"></p>
-  <p>Welcome to Lagos. Explore the city and earn money by doing jobs.</p>
-  <button id="save">💾 SAVE GAME</button>
-  <button id="help">🎮 CONTROLS</button>
-  <button id="close">CLOSE PHONE</button>
- </div>
+  <div id="rightTop">
+    <button id="phoneBtn">📱 PHONE</button>
+    <button id="pauseBtn">Ⅱ</button>
+  </div>
+
+  <div id="phonePanel">
+    <strong>MY PHONE</strong>
+    <p class="sub">Welcome to Lagos.</p>
+    <button id="phoneJob">Find a job</button>
+    <button id="phoneStats">Player details</button>
+    <button id="closePhone" style="background:#33485a">Close</button>
+  </div>
+
+  <div id="help">JOYSTICK TO MOVE • RUN TO SPRINT • JUMP TO LEAP</div>
+  <div id="toast"></div>
+
+  <button id="jobBtn">💼 GET A JOB +₦500</button>
+
+  <div id="controls">
+    <div id="joyBase"><div id="joyKnob"></div></div>
+    <div class="actions">
+      <button class="run" id="runBtn">RUN</button>
+      <button id="jumpBtn">JUMP</button>
+    </div>
+  </div>
 </div>
-<div id="toast"></div>
 
 <script type="module">
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.module.js";
 
-const $=id=>document.getElementById(id);
-let scene,camera,renderer,clock,player;
-let started=false,cash=1000,name="Player";
-let moveX=0,moveY=0,running=false,jumpTime=0;
-const keys={};
-const jobs=[{x:5,z:5},{x:-25,z:20},{x:28,z:-25}];
+const $ = id => document.getElementById(id);
 
-function say(text){
- const t=$("toast");
- t.textContent=text;t.style.display="block";
- clearTimeout(say.timer);
- say.timer=setTimeout(()=>t.style.display="none",2500);
+let scene, camera, renderer, clock, player;
+let started = false, paused = false, running = false;
+let money = 0, jumpVelocity = 0, onGround = true;
+let moveX = 0, moveY = 0, walkTime = 0;
+let buildings = [];
+let playerName = "Player";
+
+const keys = {};
+const mats = {};
+
+function mat(color, roughness=0.9){
+  return new THREE.MeshStandardMaterial({color, roughness});
 }
-function mat(color){return new THREE.MeshStandardMaterial({color,roughness:.85})}
-function cube(w,h,d,color,x,y,z){
- const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat(color));
- m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;
- scene.add(m);return m;
+
+function makeMaterial(color){
+  if(!mats[color]) mats[color] = mat(color);
+  return mats[color];
 }
-function building(x,z,w,d,h,color){
- cube(w,h,d,color,x,h/2,z);
- cube(w*.85,.3,d*.85,0x46525a,x,h+.15,z);
- for(let y=1.5;y<h-.7;y+=2){
-  for(let xx=-w/2+1;xx<w/2-.4;xx+=1.8){
-   cube(.65,.7,.05,0x79c9e8,x+xx,y,z-d/2-.03);
-  }
- }
+
+function box(w,h,d,material,x,y,z){
+  const mesh = new THREE.Mesh(
+    new THREE.BoxGeometry(w,h,d),
+    material
+  );
+  mesh.position.set(x,y,z);
+  mesh.castShadow = true;
+  mesh.receiveShadow = true;
+  scene.add(mesh);
+  return mesh;
 }
-function tree(x,z){
- const trunk=new THREE.Mesh(new THREE.CylinderGeometry(.2,.3,2,7),mat(0x785033));
- trunk.position.set(x,1,z);scene.add(trunk);
- const crown=new THREE.Mesh(new THREE.SphereGeometry(1.15,8,7),mat(0x238044));
- crown.position.set(x,2.7,z);scene.add(crown);
-}
-function car(x,z,color){
- const g=new THREE.Group();
- const body=new THREE.Mesh(new THREE.BoxGeometry(2,.75,4),mat(color));
- body.position.y=.7;g.add(body);
- const roof=new THREE.Mesh(new THREE.BoxGeometry(1.5,.65,1.8),mat(0x94c6d8));
- roof.position.set(0,1.3,-.15);g.add(roof);
- for(const xw of [-1,1])for(const zw of [-1.25,1.25]){
-  const w=new THREE.Mesh(new THREE.CylinderGeometry(.35,.35,.22,10),mat(0x15191d));
-  w.rotation.z=Math.PI/2;w.position.set(xw,.35,zw);g.add(w);
- }
- g.position.set(x,0,z);scene.add(g);
-}
+
 function makePlayer(){
   player = new THREE.Group();
 
-    const skin = mat(0x925b37);
-      const shirt = mat(0x087fce);
-        const pants = mat(0x202b3b);
-          const shoes = mat(0x171717);
-            const hair = mat(0x19130f);
+  const skin = mat(0x925b37);
+  const shirt = mat(0x087fce);
+  const pants = mat(0x202b3b);
+  const hair = mat(0x19130f);
+  const shoes = mat(0x171717);
 
-              // Torso
-                const torso = new THREE.Mesh(
-                    new THREE.BoxGeometry(0.78, 0.85, 0.4),
-                        shirt
-                          );
-                            torso.position.y = 1.35;
-                              player.add(torso);
+  const torso = new THREE.Mesh(
+    new THREE.BoxGeometry(0.78,0.86,0.42),
+    shirt
+  );
+  torso.position.y = 1.35;
+  player.add(torso);
 
-                                // Neck
-                                  const neck = new THREE.Mesh(
-                                      new THREE.CylinderGeometry(0.12, 0.14, 0.18, 12),
-                                          skin
-                                            );
-                                              neck.position.y = 1.87;
-                                                player.add(neck);
+  const neck = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.11,0.13,0.18,12),
+    skin
+  );
+  neck.position.y = 1.86;
+  player.add(neck);
 
-                                                  // Head
-                                                    const head = new THREE.Mesh(
-                                                        new THREE.SphereGeometry(0.29, 20, 16),
-                                                            skin
-                                                              );
-                                                                head.position.y = 2.17;
-                                                                  player.add(head);
+  const head = new THREE.Mesh(
+    new THREE.SphereGeometry(0.29,20,16),
+    skin
+  );
+  head.position.y = 2.08;
+  player.add(head);
 
-                                                                    // Hair
-                                                                      const hairCap = new THREE.Mesh(
-                                                                          new THREE.SphereGeometry(0.3, 16, 12),
-                                                                              hair
-                                                                                );
-                                                                                  hairCap.scale.set(1, 0.55, 1);
-                                                                                    hairCap.position.y = 2.34;
-                                                                                      player.add(hairCap);
+  const hairCap = new THREE.Mesh(
+    new THREE.SphereGeometry(0.30,16,12),
+    hair
+  );
+  hairCap.scale.y = 0.55;
+  hairCap.position.y = 2.24;
+  player.add(hairCap);
 
-                                                                                        // Arms and legs are grouped so they can be animated later
-                                                                                          player.userData.animParts = {
-                                                                                              arms: [],
-                                                                                                  legs: []
-                                                                                                    };
+  // Simple eyes make the face easier to read.
+  const eyesMat = mat(0xfafafa);
+  const pupilMat = mat(0x171717);
 
-                                                                                                      for (const side of [-1, 1]) {
-                                                                                                          const armPivot = new THREE.Group();
-                                                                                                              armPivot.position.set(side * 0.48, 1.7, 0);
-                                                                                                                  player.add(armPivot);
+  for(const side of [-1,1]){
+    const eye = new THREE.Mesh(
+      new THREE.SphereGeometry(0.035,8,8),
+      eyesMat
+    );
+    eye.position.set(side*0.105,2.08,0.264);
+    player.add(eye);
 
-                                                                                                                      const arm = new THREE.Mesh(
-                                                                                                                            new THREE.BoxGeometry(0.2, 0.65, 0.22),
-                                                                                                                                  skin
-                                                                                                                                      );
-                                                                                                                                          arm.position.y = -0.32;
-                                                                                                                                              armPivot.add(arm);
-                                                                                                                                                  player.userData.animParts.arms.push(armPivot);
+    const pupil = new THREE.Mesh(
+      new THREE.SphereGeometry(0.016,8,8),
+      pupilMat
+    );
+    pupil.position.set(side*0.105,2.08,0.292);
+    player.add(pupil);
+  }
 
-                                                                                                                                                      const legPivot = new THREE.Group();
-                                                                                                                                                          legPivot.position.set(side * 0.22, 0.93, 0);
-                                                                                                                                                              player.add(legPivot);
+  player.userData.animParts = {
+    arms:[],
+    legs:[],
+    torso
+  };
 
-                                                                                                                                                                  const leg = new THREE.Mesh(
-                                                                                                                                                                        new THREE.BoxGeometry(0.27, 0.72, 0.3),
-                                                                                                                                                                              pants
-                                                                                                                                                                                  );
-                                                                                                                                                                                      leg.position.y = -0.36;
-                                                                                                                                                                                          legPivot.add(leg);
+  for(const side of [-1,1]){
+    const armPivot = new THREE.Group();
+    armPivot.position.set(side*0.47,1.72,0);
+    player.add(armPivot);
 
-                                                                                                                                                                                              const shoe = new THREE.Mesh(
-                                                                                                                                                                                                    new THREE.BoxGeometry(0.29, 0.16, 0.42),
-                                                                                                                                                                                                          shoes
-                                                                                                                                                                                                              );
-                                                                                                                                                                                                                  shoe.position.set(0, -0.7, 0.06);
-                                                                                                                                                                                                                      legPivot.add(shoe);
+    const sleeve = new THREE.Mesh(
+      new THREE.BoxGeometry(0.23,0.32,0.25),
+      shirt
+    );
+    sleeve.position.y = -0.13;
+    armPivot.add(sleeve);
 
-                                                                                                                                                                                                                          player.userData.animParts.legs.push(legPivot);
-                                                                                                                                                                                                                            }
+    const forearm = new THREE.Mesh(
+      new THREE.BoxGeometry(0.19,0.39,0.21),
+      skin
+    );
+    forearm.position.y = -0.46;
+    armPivot.add(forearm);
 
-                                                                                                                                                                                                                              // Make the character easier to see
-                                                                                                                                                                                                                                player.traverse(function(part){
-                                                                                                                                                                                                                                    if(part.isMesh){
-                                                                                                                                                                                                                                          part.castShadow = true;
-                                                                                                                                                                                                                                                part.receiveShadow = true;
-                                                                                                                                                                                                                                                    }
-                                                                                                                                                                                                                                                      });
+    player.userData.animParts.arms.push(armPivot);
 
-                                                                                                                                                                                                                                                        player.position.set(0, 0, 10);
-                                                                                                                                                                                                                                                          scene.add(player);
-                                                                                                                                                                                                                                                          }
+    const legPivot = new THREE.Group();
+    legPivot.position.set(side*0.21,0.94,0);
+    player.add(legPivot);
 
- player.position.set(0,0,10);scene.add(player);
- 
-function init(){
- scene=new THREE.Scene();
- scene.background=new THREE.Color(0x8bc5e8);
- scene.fog=new THREE.Fog(0x8bc5e8,65,190);
- camera=new THREE.PerspectiveCamera(65,innerWidth/innerHeight,.1,500);
- renderer=new THREE.WebGLRenderer({antialias:true});
- renderer.setSize(innerWidth,innerHeight);
- renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));
- document.body.appendChild(renderer.domElement);
- scene.add(new THREE.HemisphereLight(0xd7efff,0x536044,2));
- const sun=new THREE.DirectionalLight(0xffffff,2);
- sun.position.set(35,60,25);scene.add(sun);
- const ground=new THREE.Mesh(new THREE.PlaneGeometry(400,400),mat(0x718b58));
- ground.rotation.x=-Math.PI/2;scene.add(ground);
- cube(18,.08,400,0x30363b,0,.04,0);
- cube(400,.08,18,0x30363b,0,.05,0);
- for(let z=-190;z<200;z+=12)cube(.2,.04,5,0xf4df8c,0,.1,z);
- for(let x=-190;x<200;x+=12)cube(5,.04,.2,0xf4df8c,x,.1,0);
- const colors=[0xd1a16c,0xd4c4a0,0xc77958,0xaab7bd,0xe1c38d];
- for(let x=-50;x<=50;x+=15)for(let z=-50;z<=50;z+=15){
-  if(Math.abs(x)<13||Math.abs(z)<13)continue;
-  building(x+(Math.random()-.5)*3,z+(Math.random()-.5)*3,7+Math.random()*4,7+Math.random()*4,5+Math.random()*15,colors[Math.floor(Math.random()*colors.length)]);
- }
- for(let i=-85;i<=85;i+=14){tree(12,i);tree(-12,i);tree(i,12);tree(i,-12)}
- car(-4,10,0xe2a52b);car(4,-10,0x247bd1);car(-6,28,0xd94b43);car(6,-32,0xeeeeee);
- jobs.forEach((p,i)=>cube(1.5,2.5,1.5,i===0?0x22e783:0xe9ae31,p.x,1.25,p.z));
- makePlayer();
- clock=new THREE.Clock();
- try{
-  const saved=JSON.parse(localStorage.getItem("lagosHustleSave")||"null");
-  if(saved){cash=saved.cash||cash;if(saved.x!==undefined)player.position.set(saved.x,0,saved.z||0)}
- }catch(e){}
- updateCash();
+    const leg = new THREE.Mesh(
+      new THREE.BoxGeometry(0.27,0.62,0.29),
+      pants
+    );
+    leg.position.y = -0.31;
+    legPivot.add(leg);
+
+    const shoe = new THREE.Mesh(
+      new THREE.BoxGeometry(0.29,0.16,0.40),
+      shoes
+    );
+    shoe.position.set(0,-0.64,0.06);
+    legPivot.add(shoe);
+
+    player.userData.animParts.legs.push(legPivot);
+  }
+
+  player.traverse(part=>{
+    if(part.isMesh){
+      part.castShadow = true;
+      part.receiveShadow = true;
+    }
+  });
+
+  player.position.set(0,0,10);
+  scene.add(player);
 }
-function updateCash(){$("cash").textContent="₦"+cash.toLocaleString("en-NG")}
-function start(){
- if(started)return;
- started=true;
- name=$("playerName").value.trim()||localStorage.getItem("lagosHustleName")||"Player";
- localStorage.setItem("lagosHustleName",name);
- $("name").textContent=name;
- $("phoneName").textContent="Player: "+name;
- $("login").style.display="none";$("hud").style.display="block";
- try{init()}catch(e){$("loading").style.display="flex";$("loading").innerHTML="<h2>Game failed to load</h2><p>Check your internet connection and reload.</p>";console.error(e);return}
- $("loading").style.display="none";
- say("Welcome to Lagos! Go to the green marker for work.");
- animate();
+
+function makeTree(x,z){
+  const trunk = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.16,0.22,1.5,8),
+    makeMaterial(0x604027)
+  );
+  trunk.position.set(x,0.75,z);
+  scene.add(trunk);
+
+  const crown = new THREE.Mesh(
+    new THREE.SphereGeometry(1.05,10,8),
+    makeMaterial(0x217344)
+  );
+  crown.position.set(x,2.05,z);
+  crown.scale.set(1,1.1,1);
+  scene.add(crown);
 }
-$("play").onclick=start;
-$("playerName").value=localStorage.getItem("lagosHustleName")||"";
 
-let pointer=null;
-const joy=$("joystick"),stick=$("stick");
-function joystickMove(e){
- const r=joy.getBoundingClientRect();
- let dx=e.clientX-(r.left+r.width/2),dy=e.clientY-(r.top+r.height/2);
- const len=Math.hypot(dx,dy),max=40;
- if(len>max){dx=dx/len*max;dy=dy/len*max}
- moveX=dx/max;moveY=dy/max;
- stick.style.left=(38+dx)+"px";stick.style.top=(38+dy)+"px";
+function makeCar(x,z,color){
+  const bodyMat = mat(color);
+  const body = new THREE.Mesh(
+    new THREE.BoxGeometry(1.8,0.65,3.4),
+    bodyMat
+  );
+  body.position.set(x,0.55,z);
+  scene.add(body);
+
+  const glass = new THREE.Mesh(
+    new THREE.BoxGeometry(1.35,0.5,1.55),
+    mat(0x8dc9dc,0.3)
+  );
+  glass.position.set(x,1.05,z-0.1);
+  scene.add(glass);
+
+  for(const side of [-1,1]){
+    for(const end of [-1,1]){
+      const wheel = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.27,0.27,0.18,12),
+        makeMaterial(0x161616)
+      );
+      wheel.rotation.z = Math.PI/2;
+      wheel.position.set(x+side*0.92,0.35,z+end*1.0);
+      scene.add(wheel);
+    }
+  }
 }
-function resetJoy(){pointer=null;moveX=moveY=0;stick.style.left="38px";stick.style.top="38px"}
-joy.onpointerdown=e=>{pointer=e.pointerId;joy.setPointerCapture(pointer);joystickMove(e)};
-joy.onpointermove=e=>{if(e.pointerId===pointer)joystickMove(e)};
-joy.onpointerup=resetJoy;joy.onpointercancel=resetJoy;
-window.onkeydown=e=>keys[e.key.toLowerCase()]=true;
-window.onkeyup=e=>keys[e.key.toLowerCase()]=false;
-$("run").onpointerdown=()=>running=true;
-$("run").onpointerup=$("run").onpointercancel=$("run").onpointerleave=()=>running=false;
-$("jump").onclick=()=>{if(jumpTime<=0)jumpTime=.6};
 
-$("job").onclick=()=>{
- const nearest=jobs.map((p,i)=>({p,i,d:Math.hypot(player.position.x-p.x,player.position.z-p.z)})).sort((a,b)=>a.d-b.d)[0];
- if(nearest&&nearest.d<10){
-  cash+=500;updateCash();say("Job done! You earned ₦500.");
- }else say("Find a job marker and move closer.");
-};
-$("interact").onclick=()=>{
- const d=Math.min(...jobs.map(p=>Math.hypot(player.position.x-p.x,player.position.z-p.z)));
- say(d<10?"You're at a location in Lagos.":"Explore the city to find a location.");
-};
-$("phoneButton").onclick=()=>{
- $("phoneCash").textContent="Cash: ₦"+cash.toLocaleString("en-NG");
- $("phone").style.display="flex";
-};
-$("close").onclick=()=>$("phone").style.display="none";
-$("save").onclick=()=>{
- localStorage.setItem("lagosHustleSave",JSON.stringify({cash,x:player.position.x,z:player.position.z}));
- say("Game saved on this device.");$("phone").style.display="none";
-};
-$("help").onclick=()=>alert("Joystick: move\nRUN: move faster\nJUMP: jump\nJOB: earn ₦500 near a green marker\n📱: player phone");
+function makeBuilding(x,z,w,d,h,color){
+  const building = box(w,h,d,mat(color),x,h/2,z);
+  buildings.push(building);
 
+  const roof = box(w+0.15,0.2,d+0.15,mat(0x777d80),x,h+0.1,z);
+
+  // Rows of windows on the street-facing side.
+  const rows = Math.min(7,Math.max(1,Math.floor(h/1.7)));
+  const cols = Math.min(5,Math.max(1,Math.floor(w/1.7)));
+
+  for(let row=0;row<rows;row++){
+    for(let col=0;col<cols;col++){
+      const wx=x-w/2+(col+0.5)*w/cols;
+      const wy=1.1+row*Math.min(1.6,h/(rows+0.5));
+      if(wy>h-0.5) continue;
+
+      box(
+        Math.min(0.65,w/cols*0.55),
+        0.55,
+        0.045,
+        mat(0x73b9cf,0.35),
+        wx,wy,z-d/2-0.03
+      );
+    }
+  }
+
+  return roof;
+}
+
+function makeCity(){
+  scene.background = new THREE.Color(0x8cc9eb);
+  scene.fog = new THREE.Fog(0x8cc9eb,90,300);
+
+  scene.add(new THREE.HemisphereLight(0xd9efff,0x4a493d,2.0));
+
+  const sun = new THREE.DirectionalLight(0xfff0d0,2.5);
+  sun.position.set(-35,70,30);
+  sun.castShadow = true;
+  sun.shadow.mapSize.set(1024,1024);
+  sun.shadow.camera.left=-100;
+  sun.shadow.camera.right=100;
+  sun.shadow.camera.top=100;
+  sun.shadow.camera.bottom=-100;
+  scene.add(sun);
+
+  // Large ground
+  const ground = new THREE.Mesh(
+    new THREE.PlaneGeometry(500,500),
+    mat(0x657c56)
+  );
+  ground.rotation.x=-Math.PI/2;
+  ground.receiveShadow=true;
+  scene.add(ground);
+
+  // Roads
+  for(let i=-200;i<=200;i+=50){
+    box(18,0.08,450,mat(0x30363d),i,0.04,0);
+    box(450,0.08,18,mat(0x30363d),0,0.045,i);
+  }
+
+  // Dashed road markings
+  const lineMat=mat(0xf4d66e);
+  for(let road=-200;road<=200;road+=50){
+    for(let p=-210;p<210;p+=12){
+      box(0.22,0.025,5,lineMat,road,0.09,p);
+      box(5,0.025,0.22,lineMat,p,0.095,road);
+    }
+  }
+
+  const colors=[
+    0xd3a77b,0xb6c5ce,0xd6c7a1,
+    0xb6a5a0,0x9cb6a0,0xc4c4c4,
+    0xe1b878,0x8fa5b7
+  ];
+
+  for(let x=-175;x<=175;x+=25){
+    for(let z=-175;z<=175;z+=25){
+      const roadX=Math.abs(x%50)<1;
+      const roadZ=Math.abs(z%50)<1;
+      if(roadX||roadZ) continue;
+
+      const w=8+Math.random()*5;
+      const d=8+Math.random()*5;
+      const h=7+Math.random()*25;
+
+      makeBuilding(
+        x+(Math.random()-0.5)*5,
+        z+(Math.random()-0.5)*5,
+        w,d,h,
+        colors[Math.floor(Math.random()*colors.length)]
+      );
+    }
+  }
+
+  // Trees along selected roads
+  for(let p=-180;p<=180;p+=18){
+    makeTree(-11,p);
+    makeTree(11,p+6);
+    makeTree(p,11);
+    makeTree(p+6,-11);
+  }
+
+  // Park area
+  const park=box(22,0.12,22,mat(0x397a45),35,0.08,35);
+  for(let x=28;x<=43;x+=7){
+    for(let z=28;z<=43;z+=7) makeTree(x,z);
+  }
+
+  // Static street traffic
+  makeCar(-4,22,0xd83a35);
+  makeCar(4,-23,0xe6bd31);
+  makeCar(23,4,0xeeeeee);
+  makeCar(-23,-4,0x257ed0);
+
+  // Job marker
+  const markerMat=new THREE.MeshStandardMaterial({
+    color:0xffc629,
+    emissive:0x805000
+  });
+
+  const marker=new THREE.Mesh(
+    new THREE.CylinderGeometry(0.65,0.65,0.15,20),
+    markerMat
+  );
+  marker.position.set(0,0.2,-8);
+  scene.add(marker);
+
+  const ring=new THREE.Mesh(
+    new THREE.TorusGeometry(1,0.09,8,24),
+    markerMat
+  );
+  ring.rotation.x=Math.PI/2;
+  ring.position.set(0,0.6,-8);
+  scene.add(ring);
+}
+
+function toast(message){
+  $("toast").textContent=message;
+  $("toast").style.display="block";
+  clearTimeout(toast.timer);
+  toast.timer=setTimeout(()=>{
+    $("toast").style.display="none";
+  },2200);
+}
+
+function updateMoney(){
+  $("money").textContent="₦"+money.toLocaleString("en-NG");
+  try{
+    localStorage.setItem("lagosHustleMoney",String(money));
+  }catch(e){}
+}
+
+function startGame(){
+  if(started) return;
+
+  playerName=$("playerName").value.trim()||"Player";
+  $("hudName").textContent=playerName;
+
+  try{
+    const saved=Number(localStorage.getItem("lagosHustleMoney"));
+    if(Number.isFinite(saved)&&saved>=0) money=saved;
+  }catch(e){}
+
+  updateMoney();
+
+  $("login").style.display="none";
+  $("hud").style.display="block";
+  started=true;
+  paused=false;
+  clock.start();
+  animate();
+  toast("Welcome to Lagos, "+playerName+"!");
+}
+
+function doJump(){
+  if(!started||paused||!onGround)return;
+  jumpVelocity=7.5;
+  onGround=false;
+}
+
+function doJob(){
+  if(!started)return;
+  money+=500;
+  updateMoney();
+  $("jobStatus").textContent="Job completed! +₦500";
+  toast("Job completed! You earned ₦500.");
+}
 
 function animate(){
- if(!started)return;
+  if(!started)return;
   requestAnimationFrame(animate);
 
-   const delta=Math.min(clock.getDelta(),0.05);
+  const delta=Math.min(clock.getDelta(),0.05);
 
-    let forward=-moveY;
-     let sideways=moveX;
+  if(paused){
+    renderer.render(scene,camera);
+    return;
+  }
 
-      if(keys.w||keys.arrowup)forward=1;
-       if(keys.s||keys.arrowdown)forward=-1;
-        if(keys.a||keys.arrowleft)sideways=-1;
-         if(keys.d||keys.arrowright)sideways=1;
+  let forward=-moveY;
+  let sideways=moveX;
 
-          const len=Math.hypot(forward,sideways);
+  if(keys.w||keys.arrowup)forward=1;
+  if(keys.s||keys.arrowdown)forward=-1;
+  if(keys.a||keys.arrowleft)sideways=-1;
+  if(keys.d||keys.arrowright)sideways=1;
 
-           if(len>1){
-              forward/=len;
-                 sideways/=len;
-                  }
+  const length=Math.hypot(forward,sideways);
+  if(length>1){
+    forward/=length;
+    sideways/=length;
+  }
 
-                   const speed=running?11:6;
+  const moving=length>0.08;
+  const speed=running?10:5.5;
 
-                    player.position.x+=sideways*speed*delta;
-                     player.position.z-=forward*speed*delta;
+  player.position.x+=sideways*speed*delta;
+  player.position.z-=forward*speed*delta;
 
-                      player.position.x=THREE.MathUtils.clamp(player.position.x,-180,180);
-                       player.position.z=THREE.MathUtils.clamp(player.position.z,-180,180);
+  player.position.x=THREE.MathUtils.clamp(player.position.x,-190,190);
+  player.position.z=THREE.MathUtils.clamp(player.position.z,-190,190);
 
-                        if(len>0.05){
-                           player.rotation.y=Math.atan2(sideways,-forward);
-                            }
+  if(moving){
+    player.rotation.y=Math.atan2(sideways,-forward);
+    walkTime+=delta*(running?13:8);
+  }
 
-                             if(jumpTime>0){
-                                jumpTime=Math.max(0,jumpTime-delta);
-                                   player.position.y=Math.sin((0.6-jumpTime)/0.6*Math.PI)*1.5;
-                                    }else{
-                                       player.position.y=0;
-                                        }
+  const parts=player.userData.animParts;
+  const swing=moving?Math.sin(walkTime)*(running?0.8:0.5):0;
 
-                                         const distance=11;
-                                          const cameraTarget=new THREE.Vector3(
-                                             player.position.x-Math.sin(player.rotation.y)*distance,
-                                                player.position.y+6,
-                                                   player.position.z-Math.cos(player.rotation.y)*distance
-                                                    );
+  parts.legs[0].rotation.x=swing;
+  parts.legs[1].rotation.x=-swing;
+  parts.arms[0].rotation.x=-swing*0.85;
+  parts.arms[1].rotation.x=swing*0.85;
 
-                                                     camera.position.lerp(
-                                                        cameraTarget,
-                                                           1-Math.exp(-4*delta)
-                                                            );
+  parts.torso.position.y=1.35+(moving?Math.abs(Math.sin(walkTime*2))*0.045:0);
 
-                                                             camera.lookAt(
-                                                                player.position.x,
-                                                                   player.position.y+1.3,
-                                                                      player.position.z
-                                                                       );
+  // Smooth jump and gravity
+  if(!onGround||jumpVelocity>0){
+    player.position.y+=jumpVelocity*delta;
+    jumpVelocity-=18*delta;
 
-                                                                        renderer.render(scene,camera);
-                                                                        }
-                                                                        
+    if(player.position.y<=0){
+      player.position.y=0;
+      jumpVelocity=0;
+      onGround=true;
+    }
+  }
 
+  // Third-person camera stays behind the character
+  const distance=10;
+  const cameraTarget=new THREE.Vector3(
+    player.position.x-Math.sin(player.rotation.y)*distance,
+    player.position.y+5.5,
+    player.position.z-Math.cos(player.rotation.y)*distance
+  );
+
+  camera.position.lerp(cameraTarget,1-Math.exp(-5*delta));
+  camera.lookAt(
+    player.position.x,
+    player.position.y+1.1,
+    player.position.z
+  );
+
+  renderer.render(scene,camera);
+}
+
+function setupJoystick(){
+  const base=$("joyBase");
+  const knob=$("joyKnob");
+  let activePointer=null;
+
+  function update(e){
+    const rect=base.getBoundingClientRect();
+    const cx=rect.left+rect.width/2;
+    const cy=rect.top+rect.height/2;
+    let dx=e.clientX-cx;
+    let dy=e.clientY-cy;
+    const max=rect.width*0.34;
+    const length=Math.hypot(dx,dy);
+
+    if(length>max){
+      dx=dx/length*max;
+      dy=dy/length*max;
+    }
+
+    moveX=dx/max;
+    moveY=dy/max;
+
+    knob.style.left=(rect.width/2-26+dx)+"px";
+    knob.style.top=(rect.height/2-26+dy)+"px";
+  }
+
+  function reset(){
+    activePointer=null;
+    moveX=0;
+    moveY=0;
+    knob.style.left="34px";
+    knob.style.top="34px";
+  }
+
+  base.addEventListener("pointerdown",e=>{
+    e.preventDefault();
+    activePointer=e.pointerId;
+    base.setPointerCapture(e.pointerId);
+    update(e);
+  });
+
+  base.addEventListener("pointermove",e=>{
+    if(e.pointerId===activePointer)update(e);
+  });
+
+  base.addEventListener("pointerup",e=>{
+    if(e.pointerId===activePointer)reset();
+  });
+
+  base.addEventListener("pointercancel",reset);
+}
+
+function init(){
+  scene=new THREE.Scene();
+  clock=new THREE.Clock();
+
+  camera=new THREE.PerspectiveCamera(
+    65,
+    window.innerWidth/window.innerHeight,
+    0.1,
+    700
+  );
+  camera.position.set(0,7,20);
+
+  renderer=new THREE.WebGLRenderer({
+    antialias:true,
+    powerPreference:"high-performance"
+  });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio,1.6));
+  renderer.setSize(window.innerWidth,window.innerHeight);
+  renderer.shadowMap.enabled=true;
+  renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+  renderer.outputColorSpace=THREE.SRGBColorSpace;
+  $("game").appendChild(renderer.domElement);
+
+  makeCity();
+  makePlayer();
+
+  camera.position.set(0,6,20);
+  camera.lookAt(player.position);
+
+  setupJoystick();
+
+  window.addEventListener("resize",()=>{
+    camera.aspect=window.innerWidth/window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth,window.innerHeight);
+  });
+
+  $("loading").style.display="none";
+}
+
+$("startBtn").addEventListener("click",startGame);
+$("playerName").addEventListener("keydown",e=>{
+  if(e.key==="Enter")startGame();
+});
+
+$("jumpBtn").addEventListener("pointerdown",e=>{
+  e.preventDefault();
+  doJump();
+});
+
+$("runBtn").addEventListener("pointerdown",e=>{
+  e.preventDefault();
+  running=true;
+});
+$("runBtn").addEventListener("pointerup",()=>running=false);
+$("runBtn").addEventListener("pointercancel",()=>running=false);
+$("runBtn").addEventListener("pointerleave",()=>running=false);
+
+$("jobBtn").addEventListener("click",doJob);
+$("phoneJob").addEventListener("click",()=>{
+  $("phonePanel").style.display="none";
+  doJob();
+});
+
+$("phoneBtn").addEventListener("click",()=>{
+  const panel=$("phonePanel");
+  panel.style.display=panel.style.display==="block"?"none":"block";
+});
+
+$("closePhone").addEventListener("click",()=>{
+  $("phonePanel").style.display="none";
+});
+
+$("phoneStats").addEventListener("click",()=>{
+  toast(playerName+" • Cash: ₦"+money.toLocaleString("en-NG"));
+});
+
+$("pauseBtn").addEventListener("click",()=>{
+  paused=!paused;
+  $("pauseBtn").textContent=paused?"▶":"Ⅱ";
+  toast(paused?"Game paused":"Game resumed");
+});
+
+window.addEventListener("keydown",e=>{
+  const key=e.key.toLowerCase();
+  keys[key]=true;
+  if(["arrowup","arrowdown","arrowleft","arrowright"," "].includes(key)){
+    e.preventDefault();
+  }
+  if(key===" "||key==="j")doJump();
+  if(key==="shift")running=true;
+});
+
+window.addEventListener("keyup",e=>{
+  keys[e.key.toLowerCase()]=false;
+  if(e.key==="Shift")running=false;
+});
+
+window.addEventListener("contextmenu",e=>e.preventDefault());
+
+try{
+  init();
+}catch(error){
+  console.error("Lagos Hustle startup error:",error);
+  $("loading").textContent="Could not load the city. Check your internet and reload.";
+}
 </script>
 </body>
 </html>
