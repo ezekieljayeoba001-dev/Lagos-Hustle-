@@ -5,28 +5,17 @@ export default {
     if (url.pathname === "/api/health") {
       return Response.json({
         success: true,
-        message: "Lagos Hustle backend is working"
+        message: "Lagos Hustle backend is working!"
       });
     }
 
-    if (url.pathname === "/api/db-test") {
-      try {
-        const result = await env.DB.prepare(
-          "SELECT name FROM sqlite_master WHERE type = 'table'"
-        ).all();
-
-        return Response.json({
-          success: true,
-          tables: result.results
-        });
-      } catch (error) {
-        return Response.json({
-          success: false,
-          message: "Database binding is not configured yet"
-        }, { status: 500 });
+    return new Response(
+      "Lagos Hustle backend is running!",
+      {
+        headers: {
+          "Content-Type": "text/plain"
+        }
       }
-    }
-
-    return new Response("Lagos Hustle backend is running!");
+    );
   }
-}
+};
