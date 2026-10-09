@@ -29,4 +29,4 @@ export default {
 
     return new Response("Lagos Hustle backend is running!");
   }
-};
+}
