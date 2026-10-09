@@ -1,0 +1,273 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#07111c">
+<title>Lagos Hustle</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#07111c;color:white;font-family:Arial,sans-serif;touch-action:none}
+canvas{display:block}
+#loading,#login,#hud,#phone{position:fixed;inset:0}
+#loading{z-index:10;display:flex;align-items:center;justify-content:center;flex-direction:column;background:#07111c}
+#loading h1{color:#32b7ff}
+#login{z-index:8;display:none;align-items:center;justify-content:center;background:#07111c;padding:20px}
+.box{width:min(380px,95vw);padding:24px;background:#0c1d2c;border:1px solid #29465c;border-radius:20px}
+h1,h2{color:#46baff}
+input{width:100%;padding:14px;border-radius:10px;border:1px solid #34536b;background:#06121d;color:white;margin:8px 0}
+button{border:1px solid #ffffff30;background:#142c40;color:white;border-radius:12px;padding:12px;font-weight:bold}
+#login button{width:100%;background:#168ee0;margin-top:8px}
+#hud{z-index:5;display:none;pointer-events:none}
+#top{position:absolute;top:12px;left:12px;right:12px;display:flex;justify-content:space-between;align-items:flex-start}
+.info{background:#07111ce8;border:1px solid #ffffff25;border-radius:12px;padding:10px 12px;font-size:13px}
+#cash{color:#58ee93;font-weight:bold}
+#phoneButton{pointer-events:auto;border-radius:50%;width:50px;height:50px;font-size:23px;padding:0}
+#joystick{position:absolute;left:22px;bottom:24px;width:135px;height:135px;border:2px solid #ffffff40;border-radius:50%;background:#ffffff18;pointer-events:auto}
+#stick{position:absolute;left:38px;top:38px;width:55px;height:55px;border-radius:50%;background:#168ee0dd;border:2px solid #ffffff70}
+#actions{position:absolute;right:12px;bottom:22px;display:flex;flex-direction:column;gap:8px;pointer-events:auto}
+.row{display:flex;gap:7px}
+.action{min-width:66px;min-height:47px}
+.blue{background:#168ee0}
+#toast{position:fixed;z-index:20;top:75px;left:50%;transform:translateX(-50%);background:#0b1c2a;border:1px solid #34536b;padding:12px 16px;border-radius:12px;display:none;text-align:center;max-width:90vw}
+#phone{z-index:15;display:none;align-items:center;justify-content:center;background:#000b;padding:18px}
+#phone .box{max-height:85vh;overflow:auto}
+#phone button{margin:4px}
+@media(orientation:portrait){#login:has(+ #hud[style*="display: block"]){display:flex}}
+</style>
+</head>
+<body>
+<div id="loading"><h1>LAGOS HUSTLE</h1><p>Preparing your city...</p></div>
+
+<div id="login">
+ <div class="box">
+  <h1 style="text-align:center">LAGOS HUSTLE</h1>
+  <p>Start your own life in Lagos.</p>
+  <input id="playerName" maxlength="18" placeholder="Enter your player name">
+  <button id="play">ENTER CITY</button>
+  <p style="font-size:12px;color:#9cb1c4">Single-player test version</p>
+ </div>
+</div>
+
+<div id="hud">
+ <div id="top">
+  <div class="info">
+   <div id="name">Player</div>
+   <div>Cash: <span id="cash">₦1,000</span></div>
+   <div style="color:#62e5a0;font-size:11px;margin-top:4px">OFFLINE MODE · SINGLE PLAYER</div>
+  </div>
+  <button id="phoneButton">📱</button>
+ </div>
+ <div id="joystick"><div id="stick"></div></div>
+ <div id="actions">
+  <div class="row"><button id="run" class="action blue">RUN</button><button id="jump" class="action">JUMP</button></div>
+  <div class="row"><button id="job" class="action">JOB +₦500</button><button id="interact" class="action">ENTER</button></div>
+ </div>
+</div>
+
+<div id="phone">
+ <div class="box">
+  <h2>📱 Player Phone</h2>
+  <p id="phoneName"></p>
+  <p id="phoneCash"></p>
+  <p>Welcome to Lagos. Explore the city and earn money by doing jobs.</p>
+  <button id="save">💾 SAVE GAME</button>
+  <button id="help">🎮 CONTROLS</button>
+  <button id="close">CLOSE PHONE</button>
+ </div>
+</div>
+<div id="toast"></div>
+
+<script type="module">
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.module.js";
+
+const $=id=>document.getElementById(id);
+let scene,camera,renderer,clock,player;
+let started=false,cash=1000,name="Player";
+let moveX=0,moveY=0,running=false,jumpTime=0;
+const keys={};
+const jobs=[{x:5,z:5},{x:-25,z:20},{x:28,z:-25}];
+
+function say(text){
+ const t=$("toast");
+ t.textContent=text;t.style.display="block";
+ clearTimeout(say.timer);
+ say.timer=setTimeout(()=>t.style.display="none",2500);
+}
+function mat(color){return new THREE.MeshStandardMaterial({color,roughness:.85})}
+function cube(w,h,d,color,x,y,z){
+ const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat(color));
+ m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;
+ scene.add(m);return m;
+}
+function building(x,z,w,d,h,color){
+ cube(w,h,d,color,x,h/2,z);
+ cube(w*.85,.3,d*.85,0x46525a,x,h+.15,z);
+ for(let y=1.5;y<h-.7;y+=2){
+  for(let xx=-w/2+1;xx<w/2-.4;xx+=1.8){
+   cube(.65,.7,.05,0x79c9e8,x+xx,y,z-d/2-.03);
+  }
+ }
+}
+function tree(x,z){
+ const trunk=new THREE.Mesh(new THREE.CylinderGeometry(.2,.3,2,7),mat(0x785033));
+ trunk.position.set(x,1,z);scene.add(trunk);
+ const crown=new THREE.Mesh(new THREE.SphereGeometry(1.15,8,7),mat(0x238044));
+ crown.position.set(x,2.7,z);scene.add(crown);
+}
+function car(x,z,color){
+ const g=new THREE.Group();
+ const body=new THREE.Mesh(new THREE.BoxGeometry(2,.75,4),mat(color));
+ body.position.y=.7;g.add(body);
+ const roof=new THREE.Mesh(new THREE.BoxGeometry(1.5,.65,1.8),mat(0x94c6d8));
+ roof.position.set(0,1.3,-.15);g.add(roof);
+ for(const xw of [-1,1])for(const zw of [-1.25,1.25]){
+  const w=new THREE.Mesh(new THREE.CylinderGeometry(.35,.35,.22,10),mat(0x15191d));
+  w.rotation.z=Math.PI/2;w.position.set(xw,.35,zw);g.add(w);
+ }
+ g.position.set(x,0,z);scene.add(g);
+}
+function makePlayer(){
+ player=new THREE.Group();
+ const skin=mat(0x925b37),shirt=mat(0x168ee0),pants=mat(0x273448);
+ const torso=new THREE.Mesh(new THREE.BoxGeometry(.8,1,.42),shirt);
+ torso.position.y=1.25;player.add(torso);
+ const head=new THREE.Mesh(new THREE.SphereGeometry(.34,12,10),skin);
+ head.position.y=2;player.add(head);
+ const hair=new THREE.Mesh(new THREE.SphereGeometry(.35,10,8),mat(0x19130f));
+ hair.scale.y=.5;hair.position.y=2.2;player.add(hair);
+ for(const side of [-1,1]){
+  const arm=new THREE.Mesh(new THREE.BoxGeometry(.22,.8,.24),skin);
+  arm.position.set(side*.52,1.25,0);player.add(arm);
+  const leg=new THREE.Mesh(new THREE.BoxGeometry(.28,.75,.3),pants);
+  leg.position.set(side*.22,.38,0);player.add(leg);
+ }
+ player.position.set(0,0,10);scene.add(player);
+}
+function init(){
+ scene=new THREE.Scene();
+ scene.background=new THREE.Color(0x8bc5e8);
+ scene.fog=new THREE.Fog(0x8bc5e8,65,190);
+ camera=new THREE.PerspectiveCamera(65,innerWidth/innerHeight,.1,500);
+ renderer=new THREE.WebGLRenderer({antialias:true});
+ renderer.setSize(innerWidth,innerHeight);
+ renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));
+ document.body.appendChild(renderer.domElement);
+ scene.add(new THREE.HemisphereLight(0xd7efff,0x536044,2));
+ const sun=new THREE.DirectionalLight(0xffffff,2);
+ sun.position.set(35,60,25);scene.add(sun);
+ const ground=new THREE.Mesh(new THREE.PlaneGeometry(400,400),mat(0x718b58));
+ ground.rotation.x=-Math.PI/2;scene.add(ground);
+ cube(18,.08,400,0x30363b,0,.04,0);
+ cube(400,.08,18,0x30363b,0,.05,0);
+ for(let z=-190;z<200;z+=12)cube(.2,.04,5,0xf4df8c,0,.1,z);
+ for(let x=-190;x<200;x+=12)cube(5,.04,.2,0xf4df8c,x,.1,0);
+ const colors=[0xd1a16c,0xd4c4a0,0xc77958,0xaab7bd,0xe1c38d];
+ for(let x=-50;x<=50;x+=15)for(let z=-50;z<=50;z+=15){
+  if(Math.abs(x)<13||Math.abs(z)<13)continue;
+  building(x+(Math.random()-.5)*3,z+(Math.random()-.5)*3,7+Math.random()*4,7+Math.random()*4,5+Math.random()*15,colors[Math.floor(Math.random()*colors.length)]);
+ }
+ for(let i=-85;i<=85;i+=14){tree(12,i);tree(-12,i);tree(i,12);tree(i,-12)}
+ car(-4,10,0xe2a52b);car(4,-10,0x247bd1);car(-6,28,0xd94b43);car(6,-32,0xeeeeee);
+ jobs.forEach((p,i)=>cube(1.5,2.5,1.5,i===0?0x22e783:0xe9ae31,p.x,1.25,p.z));
+ makePlayer();
+ clock=new THREE.Clock();
+ try{
+  const saved=JSON.parse(localStorage.getItem("lagosHustleSave")||"null");
+  if(saved){cash=saved.cash||cash;if(saved.x!==undefined)player.position.set(saved.x,0,saved.z||0)}
+ }catch(e){}
+ updateCash();
+}
+function updateCash(){$("cash").textContent="₦"+cash.toLocaleString("en-NG")}
+function start(){
+ if(started)return;
+ started=true;
+ name=$("playerName").value.trim()||localStorage.getItem("lagosHustleName")||"Player";
+ localStorage.setItem("lagosHustleName",name);
+ $("name").textContent=name;
+ $("phoneName").textContent="Player: "+name;
+ $("login").style.display="none";$("hud").style.display="block";
+ try{init()}catch(e){$("loading").style.display="flex";$("loading").innerHTML="<h2>Game failed to load</h2><p>Check your internet connection and reload.</p>";console.error(e);return}
+ $("loading").style.display="none";
+ say("Welcome to Lagos! Go to the green marker for work.");
+ animate();
+}
+$("play").onclick=start;
+$("playerName").value=localStorage.getItem("lagosHustleName")||"";
+
+let pointer=null;
+const joy=$("joystick"),stick=$("stick");
+function joystickMove(e){
+ const r=joy.getBoundingClientRect();
+ let dx=e.clientX-(r.left+r.width/2),dy=e.clientY-(r.top+r.height/2);
+ const len=Math.hypot(dx,dy),max=40;
+ if(len>max){dx=dx/len*max;dy=dy/len*max}
+ moveX=dx/max;moveY=dy/max;
+ stick.style.left=(38+dx)+"px";stick.style.top=(38+dy)+"px";
+}
+function resetJoy(){pointer=null;moveX=moveY=0;stick.style.left="38px";stick.style.top="38px"}
+joy.onpointerdown=e=>{pointer=e.pointerId;joy.setPointerCapture(pointer);joystickMove(e)};
+joy.onpointermove=e=>{if(e.pointerId===pointer)joystickMove(e)};
+joy.onpointerup=resetJoy;joy.onpointercancel=resetJoy;
+window.onkeydown=e=>keys[e.key.toLowerCase()]=true;
+window.onkeyup=e=>keys[e.key.toLowerCase()]=false;
+$("run").onpointerdown=()=>running=true;
+$("run").onpointerup=$("run").onpointercancel=$("run").onpointerleave=()=>running=false;
+$("jump").onclick=()=>{if(jumpTime<=0)jumpTime=.6};
+
+$("job").onclick=()=>{
+ const nearest=jobs.map((p,i)=>({p,i,d:Math.hypot(player.position.x-p.x,player.position.z-p.z)})).sort((a,b)=>a.d-b.d)[0];
+ if(nearest&&nearest.d<10){
+  cash+=500;updateCash();say("Job done! You earned ₦500.");
+ }else say("Find a job marker and move closer.");
+};
+$("interact").onclick=()=>{
+ const d=Math.min(...jobs.map(p=>Math.hypot(player.position.x-p.x,player.position.z-p.z)));
+ say(d<10?"You're at a location in Lagos.":"Explore the city to find a location.");
+};
+$("phoneButton").onclick=()=>{
+ $("phoneCash").textContent="Cash: ₦"+cash.toLocaleString("en-NG");
+ $("phone").style.display="flex";
+};
+$("close").onclick=()=>$("phone").style.display="none";
+$("save").onclick=()=>{
+ localStorage.setItem("lagosHustleSave",JSON.stringify({cash,x:player.position.x,z:player.position.z}));
+ say("Game saved on this device.");$("phone").style.display="none";
+};
+$("help").onclick=()=>alert("Joystick: move\nRUN: move faster\nJUMP: jump\nJOB: earn ₦500 near a green marker\n📱: player phone");
+
+function animate(){
+ if(!started)return;
+ requestAnimationFrame(animate);
+ const delta=Math.min(clock.getDelta(),.05);
+ let forward=-moveY,sideways=moveX;
+ if(keys.w||keys.arrowup)forward=1;
+ if(keys.s||keys.arrowdown)forward=-1;
+ if(keys.a||keys.arrowleft)sideways=-1;
+ if(keys.d||keys.arrowright)sideways=1;
+ const len=Math.hypot(forward,sideways);
+ if(len>1){forward/=len;sideways/=len}
+ const speed=running?11:6;
+ player.position.x+=sideways*speed*delta;
+ player.position.z-=forward*speed*delta;
+ player.position.x=THREE.MathUtils.clamp(player.position.x,-180,180);
+ player.position.z=THREE.MathUtils.clamp(player.position.z,-180,180);
+ if(len>.05)player.rotation.y=Math.atan2(sideways,-forward);
+ if(jumpTime>0){jumpTime-=delta;player.position.y=Math.sin((.6-jumpTime)/.6*Math.PI)*1.5}else player.position.y=0;
+ const target=new THREE.Vector3(player.position.x,player.position.y+7,player.position.z+11);
+ camera.position.lerp(target,Math.min(1,delta*5));
+ camera.lookAt(player.position.x,player.position.y+1,player.position.z);
+ renderer.render(scene,camera);
+}
+window.addEventListener("resize",()=>{
+ if(!renderer||!camera)return;
+ camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);
+});
+window.addEventListener("load",()=>{
+ $("loading").style.display="none";
+ $("login").style.display="flex";
+});
+</script>
+</body>
+</html>
