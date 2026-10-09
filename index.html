@@ -237,37 +237,69 @@ $("save").onclick=()=>{
 };
 $("help").onclick=()=>alert("Joystick: move\nRUN: move faster\nJUMP: jump\nJOB: earn ₦500 near a green marker\n📱: player phone");
 
+
 function animate(){
  if(!started)return;
- requestAnimationFrame(animate);
- const delta=Math.min(clock.getDelta(),.05);
- let forward=-moveY,sideways=moveX;
- if(keys.w||keys.arrowup)forward=1;
- if(keys.s||keys.arrowdown)forward=-1;
- if(keys.a||keys.arrowleft)sideways=-1;
- if(keys.d||keys.arrowright)sideways=1;
- const len=Math.hypot(forward,sideways);
- if(len>1){forward/=len;sideways/=len}
- const speed=running?11:6;
- player.position.x+=sideways*speed*delta;
- player.position.z-=forward*speed*delta;
- player.position.x=THREE.MathUtils.clamp(player.position.x,-180,180);
- player.position.z=THREE.MathUtils.clamp(player.position.z,-180,180);
- if(len>.05)player.rotation.y=Math.atan2(sideways,-forward);
- if(jumpTime>0){jumpTime-=delta;player.position.y=Math.sin((.6-jumpTime)/.6*Math.PI)*1.5}else player.position.y=0;
- const target=new THREE.Vector3(player.position.x,player.position.y+7,player.position.z+11);
- camera.position.lerp(target,Math.min(1,delta*5));
- camera.lookAt(player.position.x,player.position.y+1,player.position.z);
- renderer.render(scene,camera);
-}
-window.addEventListener("resize",()=>{
- if(!renderer||!camera)return;
- camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);
-});
-window.addEventListener("load",()=>{
- $("loading").style.display="none";
- $("login").style.display="flex";
-});
+  requestAnimationFrame(animate);
+
+   const delta=Math.min(clock.getDelta(),0.05);
+
+    let forward=-moveY;
+     let sideways=moveX;
+
+      if(keys.w||keys.arrowup)forward=1;
+       if(keys.s||keys.arrowdown)forward=-1;
+        if(keys.a||keys.arrowleft)sideways=-1;
+         if(keys.d||keys.arrowright)sideways=1;
+
+          const len=Math.hypot(forward,sideways);
+
+           if(len>1){
+              forward/=len;
+                 sideways/=len;
+                  }
+
+                   const speed=running?11:6;
+
+                    player.position.x+=sideways*speed*delta;
+                     player.position.z-=forward*speed*delta;
+
+                      player.position.x=THREE.MathUtils.clamp(player.position.x,-180,180);
+                       player.position.z=THREE.MathUtils.clamp(player.position.z,-180,180);
+
+                        if(len>0.05){
+                           player.rotation.y=Math.atan2(sideways,-forward);
+                            }
+
+                             if(jumpTime>0){
+                                jumpTime=Math.max(0,jumpTime-delta);
+                                   player.position.y=Math.sin((0.6-jumpTime)/0.6*Math.PI)*1.5;
+                                    }else{
+                                       player.position.y=0;
+                                        }
+
+                                         const distance=11;
+                                          const cameraTarget=new THREE.Vector3(
+                                             player.position.x-Math.sin(player.rotation.y)*distance,
+                                                player.position.y+6,
+                                                   player.position.z-Math.cos(player.rotation.y)*distance
+                                                    );
+
+                                                     camera.position.lerp(
+                                                        cameraTarget,
+                                                           1-Math.exp(-4*delta)
+                                                            );
+
+                                                             camera.lookAt(
+                                                                player.position.x,
+                                                                   player.position.y+1.3,
+                                                                      player.position.z
+                                                                       );
+
+                                                                        renderer.render(scene,camera);
+                                                                        }
+                                                                        
+
 </script>
 </body>
 </html>
