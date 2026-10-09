@@ -172,12 +172,13 @@ async function handleRequest(request, env) {
   return json({ error: "Not found" }, 404);
 }
 
-export default {
-  async fetch(request, env) {
-    try {
-      return await handleRequest(request, env);
-    } catch {
-      return json({ error: "Server error. Please try again." }, 500);
-    }
+export default { async fetch(request, env) { const url = new URL(request.url);
+if (url.pathname.startsWith("/api/")) {
+  try {
+    return await handleRequest(request, env);
+  } catch {
+    return json({ error: "Server error. Please try again." }, 500);
   }
-};
+}
+return env.ASSETS.fetch(request);
+} }; 
