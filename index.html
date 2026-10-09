@@ -129,22 +129,101 @@ function car(x,z,color){
  g.position.set(x,0,z);scene.add(g);
 }
 function makePlayer(){
- player=new THREE.Group();
- const skin=mat(0x925b37),shirt=mat(0x168ee0),pants=mat(0x273448);
- const torso=new THREE.Mesh(new THREE.BoxGeometry(.8,1,.42),shirt);
- torso.position.y=1.25;player.add(torso);
- const head=new THREE.Mesh(new THREE.SphereGeometry(.34,12,10),skin);
- head.position.y=2;player.add(head);
- const hair=new THREE.Mesh(new THREE.SphereGeometry(.35,10,8),mat(0x19130f));
- hair.scale.y=.5;hair.position.y=2.2;player.add(hair);
- for(const side of [-1,1]){
-  const arm=new THREE.Mesh(new THREE.BoxGeometry(.22,.8,.24),skin);
-  arm.position.set(side*.52,1.25,0);player.add(arm);
-  const leg=new THREE.Mesh(new THREE.BoxGeometry(.28,.75,.3),pants);
-  leg.position.set(side*.22,.38,0);player.add(leg);
- }
+  player = new THREE.Group();
+
+    const skin = mat(0x925b37);
+      const shirt = mat(0x087fce);
+        const pants = mat(0x202b3b);
+          const shoes = mat(0x171717);
+            const hair = mat(0x19130f);
+
+              // Torso
+                const torso = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.78, 0.85, 0.4),
+                        shirt
+                          );
+                            torso.position.y = 1.35;
+                              player.add(torso);
+
+                                // Neck
+                                  const neck = new THREE.Mesh(
+                                      new THREE.CylinderGeometry(0.12, 0.14, 0.18, 12),
+                                          skin
+                                            );
+                                              neck.position.y = 1.87;
+                                                player.add(neck);
+
+                                                  // Head
+                                                    const head = new THREE.Mesh(
+                                                        new THREE.SphereGeometry(0.29, 20, 16),
+                                                            skin
+                                                              );
+                                                                head.position.y = 2.17;
+                                                                  player.add(head);
+
+                                                                    // Hair
+                                                                      const hairCap = new THREE.Mesh(
+                                                                          new THREE.SphereGeometry(0.3, 16, 12),
+                                                                              hair
+                                                                                );
+                                                                                  hairCap.scale.set(1, 0.55, 1);
+                                                                                    hairCap.position.y = 2.34;
+                                                                                      player.add(hairCap);
+
+                                                                                        // Arms and legs are grouped so they can be animated later
+                                                                                          player.userData.animParts = {
+                                                                                              arms: [],
+                                                                                                  legs: []
+                                                                                                    };
+
+                                                                                                      for (const side of [-1, 1]) {
+                                                                                                          const armPivot = new THREE.Group();
+                                                                                                              armPivot.position.set(side * 0.48, 1.7, 0);
+                                                                                                                  player.add(armPivot);
+
+                                                                                                                      const arm = new THREE.Mesh(
+                                                                                                                            new THREE.BoxGeometry(0.2, 0.65, 0.22),
+                                                                                                                                  skin
+                                                                                                                                      );
+                                                                                                                                          arm.position.y = -0.32;
+                                                                                                                                              armPivot.add(arm);
+                                                                                                                                                  player.userData.animParts.arms.push(armPivot);
+
+                                                                                                                                                      const legPivot = new THREE.Group();
+                                                                                                                                                          legPivot.position.set(side * 0.22, 0.93, 0);
+                                                                                                                                                              player.add(legPivot);
+
+                                                                                                                                                                  const leg = new THREE.Mesh(
+                                                                                                                                                                        new THREE.BoxGeometry(0.27, 0.72, 0.3),
+                                                                                                                                                                              pants
+                                                                                                                                                                                  );
+                                                                                                                                                                                      leg.position.y = -0.36;
+                                                                                                                                                                                          legPivot.add(leg);
+
+                                                                                                                                                                                              const shoe = new THREE.Mesh(
+                                                                                                                                                                                                    new THREE.BoxGeometry(0.29, 0.16, 0.42),
+                                                                                                                                                                                                          shoes
+                                                                                                                                                                                                              );
+                                                                                                                                                                                                                  shoe.position.set(0, -0.7, 0.06);
+                                                                                                                                                                                                                      legPivot.add(shoe);
+
+                                                                                                                                                                                                                          player.userData.animParts.legs.push(legPivot);
+                                                                                                                                                                                                                            }
+
+                                                                                                                                                                                                                              // Make the character easier to see
+                                                                                                                                                                                                                                player.traverse(function(part){
+                                                                                                                                                                                                                                    if(part.isMesh){
+                                                                                                                                                                                                                                          part.castShadow = true;
+                                                                                                                                                                                                                                                part.receiveShadow = true;
+                                                                                                                                                                                                                                                    }
+                                                                                                                                                                                                                                                      });
+
+                                                                                                                                                                                                                                                        player.position.set(0, 0, 10);
+                                                                                                                                                                                                                                                          scene.add(player);
+                                                                                                                                                                                                                                                          }
+
  player.position.set(0,0,10);scene.add(player);
-}
+ 
 function init(){
  scene=new THREE.Scene();
  scene.background=new THREE.Color(0x8bc5e8);
