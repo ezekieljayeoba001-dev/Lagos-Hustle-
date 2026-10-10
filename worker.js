@@ -196,12 +196,20 @@ async function handleRequest(request, env) {
         }, 409);
       }
 
-      return json({
-        error: "Registration failed. Check Worker logs."
-      }, 500);
-    }
-  }
+      console.error("REGISTRATION_DIAGNOSTIC", {
+  message: errorMessage(error),
+  name: error?.name
+});
 
+console.error("REGISTRATION_DIAGNOSTIC", {
+  message: errorMessage(error),
+  name: error?.name
+});
+
+return json({
+  error: "Registration failed. Check Worker logs."
+}, 500);
+      
   // LOGIN
   if (path === "/api/login" && request.method === "POST") {
     if (!env.DB) {
