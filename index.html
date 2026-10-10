@@ -2,80 +2,269 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<meta name="theme-color" content="#87ceeb">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#101a24">
 <title>Lagos Hustle</title>
 <style>
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#87ceeb;font-family:system-ui,Arial,sans-serif;touch-action:none}canvas{display:block;width:100%;height:100%}button{font:inherit;font-weight:700;border:0;cursor:pointer}#ui{position:fixed;top:10px;left:10px;z-index:10;background:#07111cdd;color:#fff;padding:9px 12px;border-radius:12px;font-size:12px;line-height:1.45;pointer-events:none}#enter{position:fixed;z-index:12;left:50%;bottom:calc(env(safe-area-inset-bottom) + 20px);transform:translateX(-50%);display:none;background:#00ed8a;color:#062017;padding:8px 13px;border-radius:22px;font-size:11px;min-height:34px;max-width:190px;white-space:nowrap;box-shadow:0 4px 14px #0005}#joy{position:fixed;z-index:10;left:20px;bottom:calc(env(safe-area-inset-bottom) + 22px);width:104px;height:104px;border-radius:50%;background:#0004;border:1px solid #ffffff55;touch-action:none}#stick{position:absolute;left:29px;top:29px;width:44px;height:44px;border-radius:50%;background:#ffffffed;border:2px solid #fff;box-shadow:0 3px 10px #0005;pointer-events:none}#help{position:fixed;z-index:9;right:10px;bottom:calc(env(safe-area-inset-bottom) + 25px);background:#07111ccc;color:white;border-radius:10px;padding:8px 10px;font-size:10px;max-width:135px;text-align:center;pointer-events:none}#toast{position:fixed;z-index:20;top:70px;left:50%;transform:translateX(-50%);display:none;background:#07111cee;color:#fff;border:1px solid #00ed8a;padding:9px 12px;border-radius:10px;font-size:12px;white-space:nowrap}@media(min-width:700px){#joy{left:32px;bottom:28px}#enter{bottom:28px}#help{bottom:32px}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#a9c8d9;font-family:Arial,sans-serif;color:white}
+#game{position:fixed;inset:0}
+canvas{display:block;width:100%;height:100%}
+#auth{position:fixed;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;padding:22px;background:linear-gradient(150deg,rgba(7,17,28,.84),rgba(7,17,28,.48)),linear-gradient(35deg,#273d36,#1b3046);overflow:auto}
+.panel{width:min(100%,390px);padding:26px 22px;border:1px solid #ffffff24;border-radius:24px;background:#111d2af2;box-shadow:0 22px 70px #0008}
+.logo{font-size:29px;font-weight:900;letter-spacing:-1px}.logo span{color:#52e0a0}
+.sub{color:#b8c7d4;font-size:13px;line-height:1.5;margin:8px 0 22px}
+.tabs{display:flex;padding:4px;background:#08121d;border-radius:12px;margin-bottom:18px}
+.tabs button{flex:1;border:0;border-radius:9px;padding:12px;color:#aab8c6;background:transparent;font-weight:bold}
+.tabs button.active{background:#26394a;color:white}
+.field{margin:12px 0}.field label{display:block;font-size:12px;color:#c2d0dc;margin-bottom:7px}
+.field input{width:100%;border:1px solid #344757;border-radius:11px;background:#091521;color:white;padding:14px;font-size:15px;outline:none}
+.field input:focus{border-color:#52e0a0}
+.primary{width:100%;border:0;border-radius:12px;padding:15px;background:#52e0a0;color:#092018;font-weight:900;font-size:15px;margin-top:10px}
+#authMsg{font-size:12px;color:#ffb6a9;line-height:1.4;margin-top:12px;min-height:16px}
+.small{font-size:11px;color:#8799aa;text-align:center;line-height:1.5;margin-top:12px}
+#hud{position:fixed;inset:0;z-index:2;pointer-events:none;display:none}
+.glass{background:#101c2bdb;border:1px solid #ffffff20;backdrop-filter:blur(8px);border-radius:14px;box-shadow:0 5px 20px #0002}
+#topbar{position:absolute;top:env(safe-area-inset-top,10px);left:12px;right:12px;padding:12px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+#brand{font-size:15px;font-weight:900}#brand span{color:#52e0a0}
+#stats{font-size:11px;color:#d2dde7;margin-top:5px}
+#logout{pointer-events:auto;border:1px solid #ffffff28;background:#ffffff0d;color:white;padding:9px 11px;border-radius:10px;font-size:11px}
+#tip{position:absolute;top:90px;left:50%;transform:translateX(-50%);white-space:nowrap;padding:8px 12px;font-size:11px;color:#e6edf3}
+#joy{position:absolute;bottom:calc(28px + env(safe-area-inset-bottom,0px));left:22px;width:124px;height:124px;border-radius:50%;background:#101c2b75;border:2px solid #ffffff42;pointer-events:auto;touch-action:none}
+#stick{position:absolute;width:52px;height:52px;left:34px;top:34px;border-radius:50%;background:#d9f6e9e8;border:2px solid white;box-shadow:0 4px 14px #0004}
+#look{position:absolute;right:0;top:120px;bottom:0;width:48%;pointer-events:auto;touch-action:pan-y}
+#action{position:absolute;right:22px;bottom:calc(35px + env(safe-area-inset-bottom,0px));width:66px;height:66px;border-radius:50%;border:2px solid #ffffff9c;background:#52e0a0d9;color:#082019;font-weight:900;pointer-events:auto}
+#notice{position:absolute;left:50%;bottom:165px;transform:translateX(-50%);font-size:11px;color:white;background:#101c2bdb;border-radius:10px;padding:10px 14px;white-space:nowrap}
+@media(min-width:700px){#joy{width:140px;height:140px}#stick{left:42px;top:42px}#topbar{left:24px;right:24px}}
 </style>
-<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js"}}</script>
+<script type="importmap">
+{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js"}}
+</script>
 </head>
 <body>
-<div id="ui"><b>🌆 LAGOS HUSTLE</b><br>Joystick / WASD to move<br>Drag screen to look around</div>
-<button id="enter">ENTER HOUSE 🏠</button>
-<div id="joy"><div id="stick"></div></div>
-<div id="help">Go near a door to enter a house</div>
-<div id="toast"></div>
+<div id="game"></div>
+<div id="auth">
+  <div class="panel">
+    <div class="logo">LAGOS <span>HUSTLE</span></div>
+    <div class="sub">Your city. Your story. Build your hustle, explore the streets, and rise from the bottom.</div>
+    <div class="tabs"><button id="loginTab" class="active">LOGIN</button><button id="registerTab">CREATE ACCOUNT</button></div>
+    <form id="authForm">
+      <div class="field" id="usernameField" hidden><label for="username">PLAYER NAME</label><input id="username" autocomplete="username" minlength="3" maxlength="20" placeholder="e.g. LagosKing"></div>
+      <div class="field"><label for="identity">USERNAME OR EMAIL</label><input id="identity" autocomplete="username" required placeholder="Enter username or email"></div>
+      <div class="field" id="emailField" hidden><label for="email">EMAIL ADDRESS</label><input id="email" type="email" autocomplete="email" placeholder="you@example.com"></div>
+      <div class="field"><label for="password">PASSWORD</label><input id="password" type="password" autocomplete="current-password" minlength="10" maxlength="128" required placeholder="At least 10 characters"></div>
+      <button class="primary" id="submitBtn" type="submit">ENTER LAGOS</button>
+      <div id="authMsg" role="status"></div>
+    </form>
+    <div class="small">An internet connection is needed to load the 3D game and sign in.</div>
+  </div>
+</div>
+<div id="hud">
+  <div id="topbar" class="glass">
+    <div><div id="brand">LAGOS <span>HUSTLE</span></div><div id="stats">Loading player...</div></div>
+    <button id="logout">LOG OUT</button>
+  </div>
+  <div id="tip" class="glass">DRAG RIGHT SIDE TO LOOK AROUND</div>
+  <div id="look" aria-label="Drag to rotate camera"></div>
+  <div id="joy"><div id="stick"></div></div>
+  <button id="action">PLAY</button>
+  <div id="notice">Welcome to Lagos. Explore the streets!</div>
+</div>
 <script type="module">
 import * as THREE from 'three';
 
-const scene=new THREE.Scene();
-scene.background=new THREE.Color(0x8ec6f0);
-scene.fog=new THREE.Fog(0x8ec6f0,45,150);
-const camera=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,0.1,250);
-const renderer=new THREE.WebGLRenderer({antialias:true});
-renderer.setPixelRatio(Math.min(devicePixelRatio,1.7));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;document.body.appendChild(renderer.domElement);
-scene.add(new THREE.HemisphereLight(0xffffff,0x666666,1.35));
-const sun=new THREE.DirectionalLight(0xffffff,1.5);sun.position.set(10,20,5);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);scene.add(sun);
-function mat(color,roughness=.85){return new THREE.MeshStandardMaterial({color,roughness});}
-function box(parent,x,y,z,sx,sy,sz,material){const m=new THREE.Mesh(new THREE.BoxGeometry(sx,sy,sz),material);m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;parent.add(m);return m;}
-const ground=new THREE.Mesh(new THREE.PlaneGeometry(200,200),mat(0x5a8a3a));ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;scene.add(ground);
+const $=id=>document.getElementById(id);
+const auth=$('auth'),hud=$('hud'),form=$('authForm');
+let mode='login',player=null,token=null,scene,camera,renderer,char,camYaw=0;
+let joyX=0,joyY=0,draggingJoy=false,lookActive=false,lastLookX=0;
+let started=false,clock=new THREE.Clock();
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 
-// Streets and markings
-for(let i=-60;i<=60;i+=20){let r=new THREE.Mesh(new THREE.PlaneGeometry(150,5),mat(0x34383a));r.rotation.x=-Math.PI/2;r.position.set(0,.012,i);scene.add(r);r=new THREE.Mesh(new THREE.PlaneGeometry(5,150),mat(0x34383a));r.rotation.x=-Math.PI/2;r.position.set(i,.013,0);scene.add(r);}
-const lineMat=mat(0xf0d46b);for(let i=-70;i<=70;i+=8){box(scene,0,.045,i,.12,.025,2.8,lineMat);box(scene,i,.046,0,2.8,.025,.12,lineMat);}
+function setMode(next){
+ mode=next;
+ $('loginTab').classList.toggle('active',mode==='login');
+ $('registerTab').classList.toggle('active',mode==='register');
+ $('usernameField').hidden=mode!=='register';
+ $('emailField').hidden=mode!=='register';
+ $('username').required=mode==='register';
+ $('email').required=mode==='register';
+ $('password').autocomplete=mode==='login'?'current-password':'new-password';
+ $('submitBtn').textContent=mode==='login'?'ENTER LAGOS':'CREATE ACCOUNT';
+ $('authMsg').textContent='';
+}
+$('loginTab').onclick=()=>setMode('login');
+$('registerTab').onclick=()=>setMode('register');
 
-// House builders
-function autumnHouse(){const g=new THREE.Group();box(g,0,1.25,0,4,2.5,4,mat(0xe8dcc0));const roof=new THREE.Mesh(new THREE.ConeGeometry(3,1.5,4),mat(0x4a7a8a));roof.position.y=3.2;roof.rotation.y=Math.PI/4;g.add(roof);box(g,0,.3,2.5,2,.2,1.5,mat(0x8a6a4a));box(g,0,.7,2.01,.7,1.4,.1,mat(0x5a3a1a));box(g,-1,1.2,2.03,.8,.8,.08,mat(0x334455));g.userData={type:'autumn',title:'Autumn House'};return g;}
-function lisboaHouse(){const g=new THREE.Group();box(g,0,2.25,0,3,4.5,3.5,mat(0xe88a4a));box(g,0,4.5,0,3.2,.3,3.7,mat(0x888888));box(g,0,.7,1.81,.7,1.4,.1,mat(0x4a8a6a));box(g,-.8,3,1.81,.6,.8,.08,mat(0xeeeeee));g.userData={type:'lisboa',title:'Lisboa House'};return g;}
-function forestHouse(){const g=new THREE.Group();const base=new THREE.Mesh(new THREE.ConeGeometry(2,3,4),mat(0x4a6a8a));base.position.y=1.5;base.rotation.y=Math.PI/4;g.add(base);box(g,0,.5,1.2,.6,1,.1,mat(0x2a1a0a));for(let i=0;i<4;i++){const t=new THREE.Mesh(new THREE.ConeGeometry(.5,2,6),mat(0x2a5a2a));t.position.set(Math.cos(i*Math.PI/2)*3,1,Math.sin(i*Math.PI/2)*3);g.add(t);}g.userData={type:'forest',title:'Forest House'};return g;}
-function medievalHouse(){const g=new THREE.Group();box(g,0,1.1,0,3.5,2.2,3.5,mat(0xd8c4a0));const roof=new THREE.Mesh(new THREE.ConeGeometry(2.8,1.8,4),mat(0x8a3a3a));roof.position.y=3.1;roof.rotation.y=Math.PI/4;g.add(roof);box(g,0,.6,1.81,.7,1.2,.1,mat(0x3a2a1a));g.userData={type:'medieval',title:'Medieval House'};return g;}
-function tinyHouse(){const g=new THREE.Group();const base=new THREE.Mesh(new THREE.CylinderGeometry(1.8,2,1.8,6),mat(0xe8c84a));base.position.y=1.1;g.add(base);const roof=new THREE.Mesh(new THREE.ConeGeometry(2.2,1.2,6),mat(0xe8c84a));roof.position.y=2.4;g.add(roof);const legs=new THREE.Group();for(let i=0;i<3;i++)box(legs,Math.cos(i*2.094)*.8,.45,Math.sin(i*2.094)*.8,.1,.9,.1,mat(0x5a3a1a));g.add(legs);box(g,0,.8,1.5,.5,.8,.1,mat(0x5a3a1a));g.userData={type:'tiny',title:'Tiny House'};return g;}
-const houses=[];const housePositions=[[-12,-8,autumnHouse],[0,-12,lisboaHouse],[12,-6,forestHouse],[-10,10,medievalHouse],[10,10,tinyHouse],[0,8,autumnHouse]];
-housePositions.forEach(([x,z,fn])=>{const h=fn();h.position.set(x,0,z);scene.add(h);houses.push(h);const path=new THREE.Mesh(new THREE.PlaneGeometry(1.2,5),mat(0x686868));path.rotation.x=-Math.PI/2;path.position.set(x,.025,z+(z>0?-3.5:3.5));scene.add(path);});
-// A few simple trees and street-side buildings to make the town feel fuller
-for(let i=0;i<16;i++){const x=(i%4)*15-22.5,z=Math.floor(i/4)*17-25;if(Math.abs(x)<14&&Math.abs(z)<14)continue;const trunk=new THREE.Mesh(new THREE.CylinderGeometry(.18,.24,1.5,7),mat(0x69482d));trunk.position.set(x,.75,z);scene.add(trunk);const leaves=new THREE.Mesh(new THREE.SphereGeometry(1.05,9,7),mat(0x347344));leaves.position.set(x,1.9,z);leaves.castShadow=true;scene.add(leaves);}
+form.addEventListener('submit',async e=>{
+ e.preventDefault();
+ const btn=$('submitBtn'),msg=$('authMsg');
+ btn.disabled=true;btn.textContent='PLEASE WAIT...';msg.textContent='';
+ try{
+  const payload=mode==='login'
+   ?{identity:$('identity').value.trim(),password:$('password').value}
+   :{username:$('username').value.trim(),email:$('email').value.trim(),password:$('password').value};
+  const response=await fetch(mode==='login'?'/api/login':'/api/register',{
+   method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)
+  });
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok)throw new Error(data.error||'Could not sign in. Check your details and try again.');
+  player=data.player||data.user||null;
+  token=data.token||null;
+  if(!player)throw new Error('The server did not return player details. Check your worker response.');
+  enterGame();
+ }catch(err){msg.textContent=err.message||'Connection failed. Please try again.';}
+ finally{btn.disabled=false;btn.textContent=mode==='login'?'ENTER LAGOS':'CREATE ACCOUNT';}
+});
 
-// House interior room, with a small exit button in the room
-let inside=false,currentHouse=null;const interiorGroup=new THREE.Group();interiorGroup.visible=false;scene.add(interiorGroup);
-function buildInterior(){interiorGroup.clear();const floor=new THREE.Mesh(new THREE.PlaneGeometry(8,8),mat(0x8a7a6a));floor.rotation.x=-Math.PI/2;floor.position.y=.01;interiorGroup.add(floor);const wallMat=mat(0x9a8a6a);for(let i=0;i<4;i++){const w=new THREE.Mesh(new THREE.BoxGeometry(8,3,.2),wallMat);w.position.set(i%2===0?0:(i===1?4:-4),1.5,i%2===1?0:(i===2?4:-4));if(i%2===1)w.rotation.y=Math.PI/2;interiorGroup.add(w);}box(interiorGroup,0,1.2,-3.8,1,.6,.1,mat(0x111111));box(interiorGroup,-2,.3,-3.5,.8,.6,.4,mat(0xeeeeee));const carpet=new THREE.Mesh(new THREE.PlaneGeometry(4,4),mat(0x6a5a4a));carpet.rotation.x=-Math.PI/2;carpet.position.y=.025;interiorGroup.add(carpet);box(interiorGroup,0,.8,3.9,.8,1.6,.1,mat(0x00bb66));}
+function enterGame(){
+ auth.style.display='none';hud.style.display='block';
+ $('stats').textContent=(player.username||'Player')+'  •  ₦'+Number(player.money||0).toLocaleString()+'  •  Level '+(player.level||1);
+ if(!started){started=true;init3D();}
+ $('notice').textContent='Welcome, '+(player.username||'Player')+'!';
+ setTimeout(()=>$('notice').style.display='none',4500);
+}
+$('logout').onclick=()=>{player=null;token=null;hud.style.display='none';auth.style.display='flex';setMode('login');$('password').value='';};
 
-// Player character: hoodie, white shirt, jeans, blonde curly hair, shoes
-const char=new THREE.Group();scene.add(char);char.position.set(0,0,8);
-const skinMat=mat(0xf0d5b5),hairMat=mat(0xd4a843),hoodieMat=mat(0x2a2a2a),shirtMat=mat(0xffffff),jeanMat=mat(0x4a6a9a),shoeMat=mat(0x222222),soleMat=mat(0xeeeeee);
-box(char,0,1.4,0,.9,1.1,.5,hoodieMat);const shirt=new THREE.Mesh(new THREE.PlaneGeometry(.4,.6),new THREE.MeshStandardMaterial({color:0xffffff,side:THREE.DoubleSide}));shirt.position.set(0,1.5,.256);char.add(shirt);
-const head=new THREE.Mesh(new THREE.SphereGeometry(.32,16,16),skinMat);head.position.y=2.3;head.castShadow=true;char.add(head);
-const hair=new THREE.Group();hair.position.y=2.45;for(let i=0;i<18;i++){const curl=new THREE.Mesh(new THREE.SphereGeometry(.09,8,8),hairMat);curl.position.set((Math.random()-.5)*.6,(Math.random()-.5)*.2,(Math.random()-.5)*.6);hair.add(curl);}const hairTop=new THREE.Mesh(new THREE.SphereGeometry(.35,12,12),hairMat);hairTop.scale.y=.7;hair.add(hairTop);char.add(hair);
-const hood=new THREE.Mesh(new THREE.TorusGeometry(.28,.07,6,12,Math.PI),hoodieMat);hood.position.set(0,2.25,-.28);hood.rotation.x=Math.PI/1.2;char.add(hood);
-function limbGroup(x,y,geometry,material,meshY){const group=new THREE.Group();group.position.set(x,y,0);const mesh=new THREE.Mesh(geometry,material);mesh.position.y=meshY;mesh.castShadow=true;group.add(mesh);return group;}
-const leftArm=limbGroup(-.55,1.7,new THREE.CylinderGeometry(.11,.1,.9,8),hoodieMat,-.45);const lHand=new THREE.Mesh(new THREE.SphereGeometry(.12,8,8),skinMat);lHand.position.y=-.95;leftArm.add(lHand);char.add(leftArm);
-const rightArm=limbGroup(.55,1.7,new THREE.CylinderGeometry(.11,.1,.9,8),hoodieMat,-.45);const rHand=new THREE.Mesh(new THREE.SphereGeometry(.12,8,8),skinMat);rHand.position.y=-.95;rightArm.add(rHand);char.add(rightArm);
-const leftLeg=limbGroup(-.2,.8,new THREE.CylinderGeometry(.18,.16,1,8),jeanMat,-.5);box(leftLeg,0,-1.1,.05,.24,.15,.45,shoeMat);box(leftLeg,0,-1.18,.05,.25,.05,.46,soleMat);char.add(leftLeg);
-const rightLeg=limbGroup(.2,.8,new THREE.CylinderGeometry(.18,.16,1,8),jeanMat,-.5);box(rightLeg,0,-1.1,.05,.24,.15,.45,shoeMat);box(rightLeg,0,-1.18,.05,.25,.05,.46,soleMat);char.add(rightLeg);
+function mat(color,roughness=0.9){return new THREE.MeshStandardMaterial({color,roughness});}
+function box(parent,w,h,d,x,y,z,material){
+ const mesh=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);
+ mesh.position.set(x,y,z);mesh.castShadow=true;mesh.receiveShadow=true;parent.add(mesh);return mesh;
+}
+function init3D(){
+ scene=new THREE.Scene();scene.background=new THREE.Color(0x9bbdce);scene.fog=new THREE.Fog(0x9bbdce,55,155);
+ camera=new THREE.PerspectiveCamera(62,innerWidth/innerHeight,.1,300);
+ renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});
+ renderer.setPixelRatio(Math.min(devicePixelRatio,1.7));
+ renderer.setSize(innerWidth,innerHeight);
+ renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+ renderer.outputColorSpace=THREE.SRGBColorSpace;
+ renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.15;
+ $('game').appendChild(renderer.domElement);
 
-// Controls from the working character demo
-let joyX=0,joyY=0,camYaw=0,camPitch=.25,walkTime=0;const keys={};let dragPointer=null,lastX=0,lastY=0;const joy=document.getElementById('joy'),stick=document.getElementById('stick'),enterBtn=document.getElementById('enter');
-addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;});addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false;});
-function setJoystick(e){const r=joy.getBoundingClientRect();let x=e.clientX-(r.left+r.width/2),y=e.clientY-(r.top+r.height/2);const max=39,d=Math.hypot(x,y);if(d>max){x=x/d*max;y=y/d*max;}stick.style.left=(30+x)+'px';stick.style.top=(30+y)+'px';joyX=x/max;joyY=y/max;}
-let joyId=null;joy.addEventListener('pointerdown',e=>{e.preventDefault();joyId=e.pointerId;joy.setPointerCapture(e.pointerId);setJoystick(e);});joy.addEventListener('pointermove',e=>{if(e.pointerId===joyId){e.preventDefault();setJoystick(e);}});function stopJoy(e){if(e.pointerId!==joyId)return;joyId=null;joyX=joyY=0;stick.style.left='29px';stick.style.top='29px';}joy.addEventListener('pointerup',stopJoy);joy.addEventListener('pointercancel',stopJoy);
-// Drag anywhere outside the joystick/button to look around
-renderer.domElement.addEventListener('pointerdown',e=>{dragPointer=e.pointerId;lastX=e.clientX;lastY=e.clientY;renderer.domElement.setPointerCapture(e.pointerId);});renderer.domElement.addEventListener('pointermove',e=>{if(e.pointerId!==dragPointer)return;const dx=e.clientX-lastX,dy=e.clientY-lastY;lastX=e.clientX;lastY=e.clientY;camYaw-=dx*.006;camPitch=THREE.MathUtils.clamp(camPitch+dy*.003,.05,.75);});function endDrag(e){if(e.pointerId===dragPointer)dragPointer=null;}renderer.domElement.addEventListener('pointerup',endDrag);renderer.domElement.addEventListener('pointercancel',endDrag);
-function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.style.display='block';clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.style.display='none',2100);}
-function checkNearDoor(){if(inside)return;let near=null;for(const h of houses){if(Math.hypot(char.position.x-h.position.x,char.position.z-h.position.z)<3.5){near=h;break;}}if(near){currentHouse=near;enterBtn.textContent='ENTER '+near.userData.title+' 🏠';enterBtn.style.display='block';}else{currentHouse=null;enterBtn.style.display='none';}}
-enterBtn.addEventListener('click',()=>{if(!inside&&currentHouse){inside=true;buildInterior();interiorGroup.visible=true;houses.forEach(h=>h.visible=false);char.position.set(0,0,1.7);camYaw=0;camPitch=.15;toast('Welcome inside '+currentHouse.userData.title);}else if(inside){inside=false;interiorGroup.visible=false;houses.forEach(h=>h.visible=true);if(currentHouse)char.position.set(currentHouse.position.x,currentHouse.position.y,currentHouse.position.z+(currentHouse.position.z>0?-4:4));enterBtn.style.display='none';toast('You left the house');currentHouse=null;}});
-const clock=new THREE.Clock();function animate(){requestAnimationFrame(animate);const delta=Math.min(clock.getDelta(),.05);let mx=joyX,my=joyY;if(keys['w']||keys['arrowup'])my=-1;if(keys['s']||keys['arrowdown'])my=1;if(keys['a']||keys['arrowleft'])mx=-1;if(keys['d']||keys['arrowright'])mx=1;const mag=Math.hypot(mx,my);const moving=mag>.08&&!inside;if(moving){const nx=mx/(mag||1),ny=my/(mag||1);const moveAngle=Math.atan2(nx,ny)+camYaw;const speed=4.6;char.position.x+=Math.sin(moveAngle)*speed*delta;char.position.z+=Math.cos(moveAngle)*speed*delta;char.position.x=THREE.MathUtils.clamp(char.position.x,-85,85);char.position.z=THREE.MathUtils.clamp(char.position.z,-85,85);char.rotation.y=moveAngle;walkTime+=delta*9;leftLeg.rotation.x=Math.sin(walkTime)*.6;rightLeg.rotation.x=Math.sin(walkTime+Math.PI)*.6;leftArm.rotation.x=Math.sin(walkTime+Math.PI)*.55;rightArm.rotation.x=Math.sin(walkTime)*.55;}else{leftLeg.rotation.x*=.82;rightLeg.rotation.x*=.82;leftArm.rotation.x*=.82;rightArm.rotation.x*=.82;}
-if(!inside)checkNearDoor();const dist=inside?5:5.5,height=inside?2.3:2.8;camera.position.set(char.position.x+Math.sin(camYaw)*dist,Math.max(.7,char.position.y+height+Math.sin(camPitch)*1.5),char.position.z+Math.cos(camYaw)*dist);camera.lookAt(char.position.x,char.position.y+1.15,char.position.z);renderer.render(scene,camera);}
-animate();addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
+ scene.add(new THREE.HemisphereLight(0xd8edff,0x625343,2.0));
+ const sun=new THREE.DirectionalLight(0xffe3b5,3.1);sun.position.set(-25,40,18);sun.castShadow=true;
+ sun.shadow.mapSize.set(1024,1024);sun.shadow.camera.left=-55;sun.shadow.camera.right=55;sun.shadow.camera.top=55;sun.shadow.camera.bottom=-55;
+ sun.shadow.bias=-0.0005;scene.add(sun);
+
+ const ground=new THREE.Mesh(new THREE.PlaneGeometry(240,240),mat(0x777c70));
+ ground.rotation.x=-Math.PI/2;ground.position.y=-.03;ground.receiveShadow=true;scene.add(ground);
+ const roadMat=mat(0x353a3e),sideMat=mat(0xb0a99a),lineMat=mat(0xd9cda2);
+ // Main intersecting roads and pavements
+ for(let n=-6;n<=6;n++){
+  const pos=n*12;
+  const road1=box(scene,5,.06,150,pos,.01,0,roadMat);
+  const road2=box(scene,150,.06,5,0,.012,pos,roadMat);
+  box(scene,.22,.025,150,pos+2.25,.055,0,lineMat);
+  box(scene,150,.025,.22,0,.055,pos+2.25,lineMat);
+  box(scene,6,.16,150,pos-3,.02,0,sideMat);
+  box(scene,150,.16,6,0,.02,pos-3,sideMat);
+ }
+ // Rough plots, compound walls, houses and metal roofs
+ const walls=[0xc6b99f,0xd7c9b4,0xb7c5bb,0xd1b19a,0xaaaeb0,0xe0d2b7].map(c=>mat(c));
+ const roofMats=[0x5b6268,0x76584a,0x474e55].map(c=>mat(c));
+ const windowMat=new THREE.MeshStandardMaterial({color:0x315466,roughness:.35,metalness:.15});
+ const doorMat=mat(0x49372a),concrete=mat(0xaaa69b);
+ for(let x=-60;x<=60;x+=12){
+  for(let z=-60;z<=60;z+=12){
+   if(Math.abs(x)<9||Math.abs(z)<9)continue;
+   const bx=x+(Math.random()-.5)*1.5,bz=z+(Math.random()-.5)*1.5;
+   const w=4+Math.random()*2,d=4+Math.random()*2,h=2.8+Math.random()*2.1;
+   box(scene,w+.8,.22,d+.8,bx,.14,bz,concrete);
+   box(scene,w,h,d,bx,h/2+.25,bz,walls[Math.floor(Math.random()*walls.length)]);
+   // Flat concrete roof and parapet, typical urban houses
+   box(scene,w+.12,.16,d+.12,bx,h+.25,bz,roofMats[Math.floor(Math.random()*roofMats.length)]);
+   box(scene,w,.18,.12,bx,h+.39,bz-d/2,concrete);
+   box(scene,w,.18,.12,bx,h+.39,bz+d/2,concrete);
+   box(scene,.12,.18,d,bx-w/2,h+.39,bz,concrete);
+   box(scene,.12,.18,d,bx+w/2,h+.39,bz,concrete);
+   box(scene,.85,1.55,.08,bx-w*.18,1.02,bz+d/2+.045,doorMat);
+   for(let wy=1.2;wy<h-.15;wy+=1.25){
+    for(let wx=-w/2+.55;wx<w/2-.3;wx+=1.35){
+     if(Math.abs(wx)<w*.25&&wy<1.8)continue;
+     box(scene,.65,.55,.07,bx+wx,wy+.25,bz+d/2+.05,windowMat);
+     box(scene,.72,.07,.09,bx+wx,wy+.25,bz+d/2+.09,concrete);
+    }
+   }
+  }
+ }
+ // Street trees and simple poles
+ const trunk=mat(0x554333),leafMats=[0x416e48,0x527b46,0x3f6341].map(c=>mat(c));
+ for(let x=-54;x<=54;x+=12){
+  for(let z=-54;z<=54;z+=12){
+   if(Math.abs(x)<12||Math.abs(z)<12||Math.random()>.45)continue;
+   box(scene,.22,1.7,.22,x,.85,z,trunk);
+   const crown=new THREE.Mesh(new THREE.IcosahedronGeometry(1.15,1),leafMats[Math.floor(Math.random()*leafMats.length)]);
+   crown.position.set(x,2.4,z);crown.castShadow=true;scene.add(crown);
+  }
+ }
+ // Player character: feet at ground level, low body and head properly proportioned
+ char=new THREE.Group();scene.add(char);char.position.set(0,0,2);
+ const skin=mat(0x875638),shirt=mat(0x276c59),pants=mat(0x252d38),shoe=mat(0x15191e),hair=mat(0x171717);
+ // Legs start at ground; no oversized floating torso
+ box(char,.28,.82,.3,-.19,.47,0,pants);
+ box(char,.28,.82,.3,.19,.47,0,pants);
+ box(char,.3,.16,.48,-.19,.09,.07,shoe);
+ box(char,.3,.16,.48,.19,.09,.07,shoe);
+ box(char,.68,.72,.38,0,1.22,0,shirt);
+ const head=new THREE.Mesh(new THREE.SphereGeometry(.235,16,12),skin);
+ head.position.set(0,1.77,0);head.castShadow=true;char.add(head);
+ const hairMesh=new THREE.Mesh(new THREE.SphereGeometry(.24,16,8,0,Math.PI*2,0,Math.PI*.48),hair);
+ hairMesh.position.set(0,1.86,0);hairMesh.castShadow=true;char.add(hairMesh);
+ // Arms attached at shoulders
+ const armGeo=new THREE.CylinderGeometry(.085,.075,.62,8);
+ for(const side of [-1,1]){
+  const arm=new THREE.Mesh(armGeo,skin);arm.position.set(side*.42,1.22,0);arm.rotation.z=side*-.12;arm.castShadow=true;char.add(arm);
+ }
+ const shadow=new THREE.Mesh(new THREE.CircleGeometry(.48,20),new THREE.MeshBasicMaterial({color:0x111111,transparent:true,opacity:.23}));
+ shadow.rotation.x=-Math.PI/2;shadow.position.y=.035;char.add(shadow);
+ camera.position.set(0,4,9);camera.lookAt(0,1,0);
+ window.addEventListener('resize',resize);
+ requestAnimationFrame(animate);
+}
+function resize(){if(!renderer||!camera)return;camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);}
+function animate(){
+ requestAnimationFrame(animate);if(!renderer||!char)return;
+ const dt=Math.min(clock.getDelta(),.05);
+ const speed=4.0;
+ if(Math.abs(joyX)>.04||Math.abs(joyY)>.04){
+  const forward=-joyY,right=joyX;
+  const dx=(right*Math.cos(camYaw)+forward*Math.sin(camYaw))*speed*dt;
+  const dz=(-right*Math.sin(camYaw)+forward*Math.cos(camYaw))*speed*dt;
+  char.position.x=clamp(char.position.x+dx,-68,68);
+  char.position.z=clamp(char.position.z+dz,-68,68);
+  char.rotation.y=Math.atan2(dx,dz);
+ }
+ // Camera follows at character height instead of looking down from far above
+ const distance=6.3;
+ camera.position.x=char.position.x+Math.sin(camYaw)*distance;
+ camera.position.z=char.position.z+Math.cos(camYaw)*distance;
+ camera.position.y=2.9;
+ camera.lookAt(char.position.x,1.05,char.position.z);
+ renderer.render(scene,camera);
+}
+// Touch joystick, mouse and pointer support
+const joy=$('joy'),stick=$('stick');
+function moveJoy(e){
+ const r=joy.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;
+ let dx=e.clientX-cx,dy=e.clientY-cy;const max=37,len=Math.hypot(dx,dy);
+ if(len>max){dx=dx/len*max;dy=dy/len*max;}
+ joyX=dx/max;joyY=dy/max;
+ stick.style.transform='translate('+dx+'px,'+dy+'px)';
+}
+joy.addEventListener('pointerdown',e=>{draggingJoy=true;joy.setPointerCapture(e.pointerId);moveJoy(e);});
+joy.addEventListener('pointermove',e=>{if(draggingJoy)moveJoy(e);});
+function stopJoy(){draggingJoy=false;joyX=0;joyY=0;stick.style.transform='translate(0,0)';}
+joy.addEventListener('pointerup',stopJoy);joy.addEventListener('pointercancel',stopJoy);
+const look=$('look');
+look.addEventListener('pointerdown',e=>{lookActive=true;lastLookX=e.clientX;look.setPointerCapture(e.pointerId);});
+look.addEventListener('pointermove',e=>{if(!lookActive)return;camYaw-= (e.clientX-lastLookX)*.006;lastLookX=e.clientX;});
+look.addEventListener('pointerup',()=>lookActive=false);
+look.addEventListener('pointercancel',()=>lookActive=false);
+$('action').addEventListener('click',()=>{
+ $('notice').style.display='block';
+ $('notice').textContent='Explore the city with the joystick. Jobs and missions are coming next!';
+ setTimeout(()=>$('notice').style.display='none',3200);
+});
 </script>
 </body>
 </html>
