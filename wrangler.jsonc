@@ -1,3 +1,4 @@
+
 {
   "name": "lagos-hustle",
   "main": "worker.js",
@@ -13,5 +14,21 @@
       "database_name": "lagos-hustle-db",
       "database_id": "f19dcb08-18ab-4e85-b266-6b76428ad39d"
     }
-  ]
+  ],
+  "observability": {
+    "logs": {
+      "enabled": true,
+      "head_sampling_rate": 1,
+      "invocation_logs": true,
+      "persist": true
+    },
+    "traces": {
+      "enabled": false,
+      "head_sampling_rate": 1,
+      "persist": true
+    },
+    "issue_detection": {
+      "enabled": false
+    }
+  }
 }
