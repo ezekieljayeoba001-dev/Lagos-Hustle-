@@ -3,18 +3,17 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#101b28">
 <title>Lagos Hustle</title>
-
 <style>
 *{box-sizing:border-box}
 html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#9fc7dc;font-family:Arial,sans-serif;touch-action:none}
 #game{position:fixed;inset:0}
 canvas{display:block;width:100%;height:100%}
-#topbar{position:fixed;top:12px;left:12px;right:12px;display:flex;justify-content:space-between;align-items:center;pointer-events:none;gap:8px}
+#topbar{position:fixed;top:12px;left:12px;right:12px;display:flex;justify-content:space-between;align-items:center;gap:8px;pointer-events:none}
 .panel{background:#101b28e8;color:white;border:1px solid #ffffff25;border-radius:14px;padding:10px 13px;box-shadow:0 5px 20px #0002}
-.brand{font-weight:900;font-size:17px;letter-spacing:.4px}
+.brand{font-weight:900;font-size:17px}
 .small{font-size:11px;color:#b7c7d8;margin-top:4px}
 #status{font-size:12px;color:#80f0b0;margin-top:4px}
 #help{position:fixed;top:88px;left:12px;background:#101b28bd;color:white;padding:8px 11px;border-radius:10px;font-size:11px;pointer-events:none}
@@ -27,458 +26,397 @@ canvas{display:block;width:100%;height:100%}
 #look{position:fixed;right:18px;bottom:160px;color:white;font-size:10px;background:#101b2877;padding:7px 10px;border-radius:10px;pointer-events:none}
 #loading{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#101b28;color:white;font-weight:bold;z-index:10;text-align:center;padding:25px}
 #loading span{display:block;color:#b7c7d8;font-weight:normal;font-size:13px;margin-top:10px}
-#message{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);background:#101b28ed;color:white;padding:14px 18px;border-radius:14px;display:none;max-width:85%;text-align:center}
+#message{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);background:#101b28ed;color:white;padding:14px 18px;border-radius:14px;display:none;max-width:85%;text-align:center;z-index:30}
+#auth{position:fixed;inset:0;z-index:20;background:linear-gradient(145deg,#07111c,#102c40 65%,#07545a);display:flex;align-items:center;justify-content:center;padding:22px;overflow-y:auto;touch-action:pan-y}
+.auth-card{width:100%;max-width:390px;background:#101b28f5;color:white;border:1px solid #ffffff22;border-radius:24px;padding:25px;box-shadow:0 20px 70px #0006}
+.logo{width:58px;height:58px;border-radius:18px;background:linear-gradient(135deg,#27d6a1,#2875ef);display:grid;place-items:center;font-size:29px;margin-bottom:17px}
+.auth-card h1{font-size:27px;margin:0 0 7px}
+.auth-card p{font-size:13px;color:#afc2d2;line-height:1.5;margin:0 0 20px}
+.tabs{display:flex;background:#07111c;border-radius:12px;padding:4px;margin-bottom:18px}
+.tabs button{width:50%;border:0;border-radius:9px;padding:12px;background:transparent;color:#b9c8d5;font-weight:bold}
+.tabs button.active{background:#2369db;color:white}
+.auth-card label{display:block;font-size:12px;color:#d4e0e9;margin:13px 0 7px}
+.auth-card input{width:100%;padding:14px;border:1px solid #344b60;background:#081522;color:white;border-radius:11px;font-size:15px;outline:none;touch-action:manipulation}
+.auth-card input:focus{border-color:#35cfa4}
+#authSubmit{width:100%;padding:15px;border:0;border-radius:12px;background:linear-gradient(90deg,#16b98c,#2673ed);color:white;font-weight:800;font-size:15px;margin-top:20px;touch-action:manipulation}
+#authMsg{font-size:12px;line-height:1.5;color:#ffc7a6;margin-top:13px;overflow-wrap:anywhere}
+#logout{position:fixed;top:70px;right:12px;z-index:5;border:0;border-radius:10px;padding:8px 11px;background:#101b28dd;color:white;display:none;touch-action:manipulation}
 @media(min-width:800px){#joy{width:140px;height:140px}#knob{left:42px;top:42px}#controls{left:35px;right:35px;bottom:30px}}
 </style>
-
 <script type="importmap">
-{
-  "imports": {
-    "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js"
-  }
-}
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js"}}
 </script>
 </head>
 <body>
 <div id="game"></div>
+<div id="loading"><div>LOADING LAGOS HUSTLE<span>Building your city...</span></div></div>
 
-<div id="loading">
-  <div>LOADING LAGOS HUSTLE<span>Building your city...</span></div>
+<div id="auth">
+  <div class="auth-card">
+    <div class="logo">🏙️</div>
+    <h1>Lagos Hustle</h1>
+    <p>Enter the city. Build your story. Make your hustle count.</p>
+    <div class="tabs">
+      <button id="loginTab" class="active" type="button">Login</button>
+      <button id="signupTab" type="button">Create account</button>
+    </div>
+    <form id="authForm">
+      <div id="usernameWrap" style="display:none">
+        <label for="username">Player username</label>
+        <input id="username" type="text" minlength="3" maxlength="20" autocomplete="nickname" placeholder="Choose a username">
+      </div>
+      <label for="email">Email address</label>
+      <input id="email" type="email" autocomplete="email" required placeholder="you@example.com">
+      <label for="password">Password</label>
+      <input id="password" type="password" minlength="6" autocomplete="current-password" required placeholder="At least 6 characters">
+      <button id="authSubmit" type="submit">Login and enter city</button>
+      <div id="authMsg" role="status"></div>
+    </form>
+  </div>
 </div>
 
 <div id="topbar">
-  <div class="panel">
-    <div class="brand">LAGOS HUSTLE</div>
-    <div class="small">OPEN WORLD • PROTOTYPE</div>
-  </div>
-  <div class="panel" style="text-align:right">
-    <div id="location">Lagos Mainland</div>
-    <div id="status">● Exploring</div>
-  </div>
+  <div class="panel"><div class="brand">LAGOS HUSTLE</div><div class="small">OPEN WORLD • PROTOTYPE</div></div>
+  <div class="panel" style="text-align:right"><div id="location">Lagos Mainland</div><div id="status">● Exploring</div><div class="small" id="playerName"></div><div class="small" id="playerStats">₦0 • Level 1</div></div>
 </div>
-
+<button id="logout" type="button">Log out</button>
 <div id="help">Drag joystick to move • Drag screen to look</div>
-
 <div id="controls">
   <div id="joy"><div id="knob"></div></div>
-  <div id="buttons">
-    <button class="action" id="run">RUN</button>
-    <button class="action" id="jump">JUMP</button>
-  </div>
+  <div id="buttons"><button class="action" id="run">RUN</button><button class="action" id="jump">JUMP</button></div>
 </div>
-
-<div id="look">CAMERA: TOUCH & DRAG</div>
+<div id="look">CAMERA: TOUCH &amp; DRAG</div>
 <div id="message"></div>
 
 <script type="module">
 import * as THREE from 'three';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
+/* PUT YOUR SUPABASE PROJECT URL AND PUBLISHABLE KEY BELOW */
+const SUPABASE_URL = 'sb_publishable_CT8e0uz4RNFd2SKTmNFtYQ_nrQVSuZq';
+const SUPABASE_PUBLISHABLE_KEY = 'https://lurfrhnxltjvwtqqjmjd.supabase.co/rest/v1/';
+const CONFIGURED = !SUPABASE_URL.includes('PASTE_') &&
+                   !SUPABASE_PUBLISHABLE_KEY.includes('PASTE_');
+const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+
+const authScreen = document.getElementById('auth');
+const authForm = document.getElementById('authForm');
+const authMsg = document.getElementById('authMsg');
+const authSubmit = document.getElementById('authSubmit');
+const usernameWrap = document.getElementById('usernameWrap');
+const usernameInput = document.getElementById('username');
+const emailInput = document.getElementById('email');
+const passwordInput = document.getElementById('password');
+const loginTab = document.getElementById('loginTab');
+const signupTab = document.getElementById('signupTab');
+const logoutButton = document.getElementById('logout');
+let authMode = 'login';
+let currentUser = null;
+let profile = null;
+let profileBusy = false;
+
+function setAuthMode(mode) {
+  authMode = mode;
+  const signup = mode === 'signup';
+  usernameWrap.style.display = signup ? 'block' : 'none';
+  usernameInput.required = signup;
+  loginTab.classList.toggle('active', !signup);
+  signupTab.classList.toggle('active', signup);
+  authSubmit.textContent = signup ? 'Create account' : 'Login and enter city';
+  passwordInput.autocomplete = signup ? 'new-password' : 'current-password';
+  authMsg.textContent = '';
+}
+loginTab.addEventListener('click', () => setAuthMode('login'));
+signupTab.addEventListener('click', () => setAuthMode('signup'));
+
+function friendlyError(error) {
+  const text = error?.message || 'Something went wrong. Please try again.';
+  if (/invalid login credentials/i.test(text)) return 'Email or password is incorrect.';
+  if (/already registered/i.test(text)) return 'This email already has an account. Please log in.';
+  if (/email not confirmed/i.test(text)) return 'Please confirm your email using the link we sent you.';
+  return text;
+}
+
+authForm.addEventListener('submit', async event => {
+  event.preventDefault();
+  if (!CONFIGURED) {
+    authMsg.textContent = 'Add your Supabase Project URL and publishable key in the code first.';
+    return;
+  }
+  const email = emailInput.value.trim();
+  const password = passwordInput.value;
+  authSubmit.disabled = true;
+  authSubmit.textContent = 'Please wait...';
+  authMsg.textContent = '';
+
+  try {
+    if (authMode === 'signup') {
+      const username = usernameInput.value.trim();
+      if (username.length < 3) throw new Error('Username must be at least 3 characters.');
+      const { data, error } = await supabase.auth.signUp({
+        email, password,
+        options: { data: { username } }
+      });
+      if (error) throw error;
+      if (data.session) {
+        await enterGame(data.user, username);
+      } else {
+        authMsg.textContent = 'Account created! Check your email to confirm it, then return here and log in.';
+      }
+    } else {
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      await enterGame(data.user);
+    }
+  } catch (error) {
+    authMsg.textContent = friendlyError(error);
+  } finally {
+    authSubmit.disabled = false;
+    authSubmit.textContent = authMode === 'signup' ? 'Create account' : 'Login and enter city';
+  }
+});
+
+async function enterGame(user, chosenUsername = '') {
+  if (!user) return;
+  currentUser = user;
+  profileBusy = true;
+  authMsg.textContent = 'Loading your player profile...';
+
+  try {
+    const { data: existing, error: readError } = await supabase
+      .from('Players').select('*').eq('User_id', user.id).maybeSingle();
+    if (readError) throw readError;
+
+    if (existing) {
+      profile = existing;
+      if (chosenUsername && profile.username !== chosenUsername) {
+        const { data, error } = await supabase.from('Players')
+          .update({ username: chosenUsername })
+          .eq('User_id', user.id).select().single();
+        if (error) throw error;
+        profile = data;
+      }
+    } else {
+      const username = chosenUsername || user.user_metadata?.username ||
+                       (user.email ? user.email.split('@')[0] : 'Player');
+      const { data, error } = await supabase.from('Players').insert({
+        'User_id': user.id,
+        username,
+        money: 0,
+        xp: 0,
+        level: 1,
+        vehicles: [],
+        inventory: []
+      }).select().single();
+      if (error) throw error;
+      profile = data;
+    }
+
+    document.getElementById('playerName').textContent = 'Player: ' + profile.username;
+    document.getElementById('playerStats').textContent =
+      '₦' + Number(profile.money || 0).toLocaleString() +
+      ' • Level ' + Number(profile.level || 1);
+    authScreen.style.display = 'none';
+    logoutButton.style.display = 'block';
+    showMessage('Welcome to Lagos Hustle, ' + profile.username + '!');
+  } catch (error) {
+    authMsg.textContent = 'Signed in, but player profile could not load: ' + friendlyError(error);
+    authMsg.textContent += ' Check your Players table columns and RLS policies.';
+    authScreen.style.display = 'flex';
+  } finally {
+    profileBusy = false;
+  }
+}
+
+logoutButton.addEventListener('click', async () => {
+  const { error } = await supabase.auth.signOut();
+  if (error) {
+    showMessage(friendlyError(error));
+    return;
+  }
+  currentUser = null;
+  profile = null;
+  logoutButton.style.display = 'none';
+  authScreen.style.display = 'flex';
+  setAuthMode('login');
+  showMessage('You have logged out.');
+});
+
+supabase.auth.onAuthStateChange((event, session) => {
+  if (event === 'SIGNED_OUT') {
+    currentUser = null;
+    profile = null;
+  }
+});
+
+function showMessage(text) {
+  const el = document.getElementById('message');
+  el.textContent = text;
+  el.style.display = 'block';
+  clearTimeout(showMessage.timer);
+  showMessage.timer = setTimeout(() => el.style.display = 'none', 2600);
+}
+
+/* 3D GAME */
 const root = document.getElementById('game');
 const loading = document.getElementById('loading');
-const message = document.getElementById('message');
-
 let scene, camera, renderer, player, clock;
-let yaw = 0, pitch = 0.25;
-let moveX = 0, moveY = 0, running = false;
-let jumping = false, jumpTime = 0;
-let ready = false;
+let yaw = 0, pitch = 0.25, moveX = 0, moveY = 0;
+let running = false, jumping = false, jumpTime = 0, ready = false;
 let lastLookX = 0, lastLookY = 0, looking = false;
 
 function showError(text) {
   loading.style.display = 'flex';
-  loading.innerHTML = '<div>GAME COULD NOT LOAD<span>' +
-    text + '<br><br>Check your internet connection and reload.</span></div>';
+  loading.textContent = 'GAME COULD NOT LOAD: ' + text + '. Check your internet connection and reload.';
 }
 
-try {
-  init();
-  animate();
-} catch (error) {
-  console.error(error);
-  showError('Unable to initialize the 3D scene.');
-}
-
-function init() {
-  scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x9fc9df);
-  scene.fog = new THREE.Fog(0x9fc9df, 90, 260);
-
-  camera = new THREE.PerspectiveCamera(
-    65, innerWidth / innerHeight, 0.1, 500
-  );
-
-  renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
-  renderer.setSize(innerWidth, innerHeight);
-  renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
-  renderer.shadowMap.enabled = false;
-  renderer.outputColorSpace = THREE.SRGBColorSpace;
-  root.appendChild(renderer.domElement);
-
-  clock = new THREE.Clock();
-
-  scene.add(new THREE.HemisphereLight(0xdceeff, 0x65714d, 2.0));
-
-  const sun = new THREE.DirectionalLight(0xffedcf, 2.2);
-  sun.position.set(-50, 100, 30);
-  scene.add(sun);
-
-  createCity();
-  createPlayer();
-  setupControls();
-
-  camera.position.set(0, 5, 9);
-  camera.lookAt(player.position);
-
-  addEventListener('resize', resize);
-  ready = true;
-  loading.style.display = 'none';
-}
+try { init(); animate(); }
+catch (error) { console.error(error); showError('Unable to initialize the 3D scene'); }
 
 function material(color, roughness = 0.9) {
   return new THREE.MeshStandardMaterial({ color, roughness });
 }
-
-function box(w, h, d, color, x, y, z, parent = scene) {
-  const mesh = new THREE.Mesh(
-    new THREE.BoxGeometry(w, h, d),
-    material(color)
-  );
-  mesh.position.set(x, y + h / 2, z);
+function box(w,h,d,color,x,y,z,parent=scene) {
+  const mesh = new THREE.Mesh(new THREE.BoxGeometry(w,h,d), material(color));
+  mesh.position.set(x,y+h/2,z);
   parent.add(mesh);
   return mesh;
 }
-
 function createCity() {
-  // Ground
-  const ground = new THREE.Mesh(
-    new THREE.PlaneGeometry(400, 400),
-    material(0x84966b)
-  );
-  ground.rotation.x = -Math.PI / 2;
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(400,400), material(0x84966b));
+  ground.rotation.x = -Math.PI/2;
   ground.position.y = -0.08;
   scene.add(ground);
-
-  // Main crossing roads
-  box(18, 0.12, 350, 0x343a40, 0, -0.03, 0);
-  box(350, 0.12, 18, 0x343a40, 0, -0.02, 0);
-
-  // Lane markings
-  for (let i = -160; i <= 160; i += 10) {
-    box(0.18, 0.015, 4, 0xf4e9b0, 0, 0.045, i);
-    box(4, 0.015, 0.18, 0xf4e9b0, i, 0.05, 0);
+  box(18,.12,350,0x343a40,0,-.03,0);
+  box(350,.12,18,0x343a40,0,-.02,0);
+  for(let i=-160;i<=160;i+=10){
+    box(.18,.015,4,0xf4e9b0,0,.045,i);
+    box(4,.015,.18,0xf4e9b0,i,.05,0);
   }
-
-  // City blocks
-  const colors = [
-    0xc7b39a, 0xd6c5ad, 0xb5c0c4, 0xe2d6c1,
-    0x9faeaa, 0xc2a58c, 0xb8b8ad, 0xd8b98b
-  ];
-
-  for (let x = -130; x <= 130; x += 25) {
-    for (let z = -130; z <= 130; z += 25) {
-      if (Math.abs(x) < 18 || Math.abs(z) < 18) continue;
-
-      const seed = Math.abs(Math.floor(x * 17 + z * 31));
-      const w = 9 + (seed % 7);
-      const d = 9 + ((seed * 3) % 7);
-      const h = 6 + ((seed * 7) % 27);
-
-      box(w, h, d, colors[seed % colors.length], x, 0, z);
-
-      // Windows
-      const windowMat = material(0x82b6c8, 0.4);
-      for (let wy = 2; wy < h - 1; wy += 3) {
-        for (let wx = -w / 2 + 1.4; wx < w / 2 - 0.5; wx += 2.5) {
-          const win = new THREE.Mesh(
-            new THREE.BoxGeometry(0.9, 1.15, 0.06),
-            windowMat
-          );
-          win.position.set(x + wx, wy, z + d / 2 + 0.035);
-          scene.add(win);
-        }
-      }
-
-      // Occasional rooftop structures
-      if (seed % 3 === 0) {
-        box(w * 0.35, 2, d * 0.35, 0xb0aaa0, x, h, z);
-      }
+  const colors=[0xc7b39a,0xd6c5ad,0xb5c0c4,0xe2d6c1,0x9faeaa,0xc2a58c,0xb8b8ad,0xd8b98b];
+  const windowMat=material(0x82b6c8,.4);
+  for(let x=-130;x<=130;x+=25) for(let z=-130;z<=130;z+=25){
+    if(Math.abs(x)<18||Math.abs(z)<18) continue;
+    const seed=Math.abs(Math.floor(x*17+z*31));
+    const w=9+seed%7,d=9+(seed*3)%7,h=6+(seed*7)%27;
+    box(w,h,d,colors[seed%colors.length],x,0,z);
+    for(let wy=2;wy<h-1;wy+=3) for(let wx=-w/2+1.4;wx<w/2-.5;wx+=2.5){
+      const win=new THREE.Mesh(new THREE.BoxGeometry(.9,1.15,.06),windowMat);
+      win.position.set(x+wx,wy,z+d/2+.035);
+      scene.add(win);
     }
+    if(seed%3===0) box(w*.35,2,d*.35,0xb0aaa0,x,h,z);
   }
-
-  // Streetlights along the central roads
-  for (let p = -70; p <= 70; p += 22) {
-    if (p === 0) continue;
-    for (const side of [-1, 1]) {
-      const x = side * 11.5;
-      const z = p;
-      box(0.18, 4, 0.18, 0x555b60, x, 0, z);
-      box(1.1, 0.12, 0.12, 0xe4d4a1, x + side * 0.4, 4, z);
-    }
+  for(let p=-70;p<=70;p+=22) if(p!==0) for(const side of [-1,1]){
+    box(.18,4,.18,0x555b60,side*11.5,0,p);
+    box(1.1,.12,.12,0xe4d4a1,side*11.5+side*.4,4,p);
   }
-
-  // Park trees
-  for (let i = 0; i < 24; i++) {
-    const x = 35 + (i % 6) * 5;
-    const z = -35 + Math.floor(i / 6) * 5;
-    box(0.45, 2.3, 0.45, 0x65452e, x, 0, z);
-    const leaves = new THREE.Mesh(
-      new THREE.SphereGeometry(1.7, 7, 6),
-      material(0x39734a)
-    );
-    leaves.position.set(x, 3.3, z);
-    scene.add(leaves);
+  for(let i=0;i<24;i++){
+    const x=35+(i%6)*5,z=-35+Math.floor(i/6)*5;
+    box(.45,2.3,.45,0x65452e,x,0,z);
+    const leaves=new THREE.Mesh(new THREE.SphereGeometry(1.7,7,6),material(0x39734a));
+    leaves.position.set(x,3.3,z);scene.add(leaves);
   }
-
-  // Park boundary
-  box(35, 0.2, 0.5, 0x50614a, 47.5, 0, -37);
+  box(35,.2,.5,0x50614a,47.5,0,-37);
 }
-
-function createPlayer() {
-  player = new THREE.Group();
-  scene.add(player);
-
-  const skin = material(0x8b5938);
-  const shirt = material(0x2465b6);
-  const trousers = material(0x252d39);
-  const shoes = material(0x16191e);
-
-  const body = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.36, 0.43, 1.05, 10),
-    shirt
-  );
-  body.position.y = 1.25;
-  player.add(body);
-
-  const head = new THREE.Mesh(
-    new THREE.SphereGeometry(0.32, 12, 10),
-    skin
-  );
-  head.position.y = 2.02;
-  player.add(head);
-
-  const hair = new THREE.Mesh(
-    new THREE.SphereGeometry(0.325, 12, 6, 0, Math.PI * 2, 0, Math.PI * 0.48),
-    material(0x171512)
-  );
-  hair.position.y = 2.13;
-  player.add(hair);
-
-  const leftLeg = new THREE.Mesh(
-    new THREE.BoxGeometry(0.25, 0.7, 0.29), trousers
-  );
-  leftLeg.position.set(-0.19, 0.43, 0);
-  player.add(leftLeg);
-
-  const rightLeg = leftLeg.clone();
-  rightLeg.position.x = 0.19;
-  player.add(rightLeg);
-
-  const leftArm = new THREE.Mesh(
-    new THREE.CapsuleGeometry(0.13, 0.53, 3, 6), skin
-  );
-  leftArm.position.set(-0.48, 1.28, 0);
-  leftArm.rotation.z = -0.12;
-  player.add(leftArm);
-
-  const rightArm = leftArm.clone();
-  rightArm.position.x = 0.48;
-  rightArm.rotation.z = 0.12;
-  player.add(rightArm);
-
-  const leftShoe = new THREE.Mesh(
-    new THREE.BoxGeometry(0.3, 0.16, 0.42), shoes
-  );
-  leftShoe.position.set(-0.19, 0.09, -0.06);
-  player.add(leftShoe);
-
-  const rightShoe = leftShoe.clone();
-  rightShoe.position.x = 0.19;
-  player.add(rightShoe);
-
-  player.userData.legs = [leftLeg, rightLeg];
-  player.userData.arms = [leftArm, rightArm];
-  player.position.set(0, 0, 8);
+function createPlayer(){
+  player=new THREE.Group();scene.add(player);
+  const skin=material(0x8b5938),shirt=material(0x2465b6),trousers=material(0x252d39),shoes=material(0x16191e);
+  const body=new THREE.Mesh(new THREE.CylinderGeometry(.36,.43,1.05,10),shirt);
+  body.position.y=1.25;player.add(body);
+  const head=new THREE.Mesh(new THREE.SphereGeometry(.32,12,10),skin);
+  head.position.y=2.02;player.add(head);
+  const hair=new THREE.Mesh(new THREE.SphereGeometry(.325,12,6,0,Math.PI*2,0,Math.PI*.48),material(0x171512));
+  hair.position.y=2.13;player.add(hair);
+  const leftLeg=new THREE.Mesh(new THREE.BoxGeometry(.25,.7,.29),trousers);
+  leftLeg.position.set(-.19,.43,0);player.add(leftLeg);
+  const rightLeg=leftLeg.clone();rightLeg.position.x=.19;player.add(rightLeg);
+  const leftArm=new THREE.Mesh(new THREE.CapsuleGeometry(.13,.53,3,6),skin);
+  leftArm.position.set(-.48,1.28,0);leftArm.rotation.z=-.12;player.add(leftArm);
+  const rightArm=leftArm.clone();rightArm.position.x=.48;rightArm.rotation.z=.12;player.add(rightArm);
+  const leftShoe=new THREE.Mesh(new THREE.BoxGeometry(.3,.16,.42),shoes);
+  leftShoe.position.set(-.19,.09,-.06);player.add(leftShoe);
+  const rightShoe=leftShoe.clone();rightShoe.position.x=.19;player.add(rightShoe);
+  player.userData.legs=[leftLeg,rightLeg];player.userData.arms=[leftArm,rightArm];
+  player.position.set(0,0,8);
 }
-
-function setupControls() {
-  const joy = document.getElementById('joy');
-  const knob = document.getElementById('knob');
-  let joyPointer = null;
-
-  function updateJoy(e) {
-    const r = joy.getBoundingClientRect();
-    const cx = r.left + r.width / 2;
-    const cy = r.top + r.height / 2;
-    let dx = e.clientX - cx;
-    let dy = e.clientY - cy;
-    const max = r.width * 0.31;
-    const len = Math.hypot(dx, dy);
-    if (len > max) {
-      dx *= max / len;
-      dy *= max / len;
-    }
-    moveX = dx / max;
-    moveY = dy / max;
-    knob.style.transform = `translate(${dx}px,${dy}px)`;
+function setupControls(){
+  const joy=document.getElementById('joy'),knob=document.getElementById('knob');
+  let joyPointer=null;
+  function updateJoy(e){
+    const r=joy.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;
+    let dx=e.clientX-cx,dy=e.clientY-cy,max=r.width*.31,len=Math.hypot(dx,dy);
+    if(len>max){dx*=max/len;dy*=max/len}
+    moveX=dx/max;moveY=dy/max;knob.style.transform=`translate(${dx}px,${dy}px)`;
   }
-
-  joy.addEventListener('pointerdown', e => {
-    joyPointer = e.pointerId;
-    joy.setPointerCapture(e.pointerId);
-    updateJoy(e);
-  });
-
-  joy.addEventListener('pointermove', e => {
-    if (e.pointerId === joyPointer) updateJoy(e);
-  });
-
-  function releaseJoy(e) {
-    if (e.pointerId !== joyPointer) return;
-    joyPointer = null;
-    moveX = moveY = 0;
-    knob.style.transform = 'translate(0px,0px)';
-  }
-
-  joy.addEventListener('pointerup', releaseJoy);
-  joy.addEventListener('pointercancel', releaseJoy);
-
-  const runButton = document.getElementById('run');
-  runButton.addEventListener('pointerdown', e => {
-    e.preventDefault();
-    running = true;
-    runButton.classList.add('on');
-  });
-  ['pointerup','pointercancel','pointerleave'].forEach(ev =>
-    runButton.addEventListener(ev, () => {
-      running = false;
-      runButton.classList.remove('on');
-    })
-  );
-
-  const jumpButton = document.getElementById('jump');
-  jumpButton.addEventListener('pointerdown', e => {
-    e.preventDefault();
-    if (!jumping) {
-      jumping = true;
-      jumpTime = 0;
-    }
-  });
-
-  // Drag on the open screen to rotate the camera.
-  renderer.domElement.addEventListener('pointerdown', e => {
-    if (e.clientX < innerWidth * 0.25 ||
-        e.clientY > innerHeight * 0.65) return;
-    looking = true;
-    lastLookX = e.clientX;
-    lastLookY = e.clientY;
+  joy.addEventListener('pointerdown',e=>{joyPointer=e.pointerId;joy.setPointerCapture(e.pointerId);updateJoy(e)});
+  joy.addEventListener('pointermove',e=>{if(e.pointerId===joyPointer)updateJoy(e)});
+  function releaseJoy(e){if(e.pointerId!==joyPointer)return;joyPointer=null;moveX=moveY=0;knob.style.transform='translate(0px,0px)'}
+  joy.addEventListener('pointerup',releaseJoy);joy.addEventListener('pointercancel',releaseJoy);
+  const runButton=document.getElementById('run');
+  runButton.addEventListener('pointerdown',e=>{e.preventDefault();running=true;runButton.classList.add('on')});
+  ['pointerup','pointercancel','pointerleave'].forEach(ev=>runButton.addEventListener(ev,()=>{running=false;runButton.classList.remove('on')}));
+  document.getElementById('jump').addEventListener('pointerdown',e=>{e.preventDefault();if(!jumping){jumping=true;jumpTime=0}});
+  renderer.domElement.addEventListener('pointerdown',e=>{
+    if(e.clientX<innerWidth*.25||e.clientY>innerHeight*.65)return;
+    looking=true;lastLookX=e.clientX;lastLookY=e.clientY;
     renderer.domElement.setPointerCapture(e.pointerId);
   });
-
-  renderer.domElement.addEventListener('pointermove', e => {
-    if (!looking) return;
-    const dx = e.clientX - lastLookX;
-    const dy = e.clientY - lastLookY;
-    lastLookX = e.clientX;
-    lastLookY = e.clientY;
-    yaw -= dx * 0.006;
-    pitch = THREE.MathUtils.clamp(pitch + dy * 0.003, -0.15, 0.8);
+  renderer.domElement.addEventListener('pointermove',e=>{
+    if(!looking)return;
+    const dx=e.clientX-lastLookX,dy=e.clientY-lastLookY;
+    lastLookX=e.clientX;lastLookY=e.clientY;
+    yaw-=dx*.006;pitch=THREE.MathUtils.clamp(pitch+dy*.003,-.15,.8);
   });
-
-  function stopLook() { looking = false; }
-  renderer.domElement.addEventListener('pointerup', stopLook);
-  renderer.domElement.addEventListener('pointercancel', stopLook);
-
-  // Keyboard support for testing on computers.
-  const keys = {};
-  addEventListener('keydown', e => {
-    keys[e.key.toLowerCase()] = true;
-    if (e.key === ' ') jumping = true;
-  });
-  addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
-
-  window.getKeyboard = () => keys;
+  renderer.domElement.addEventListener('pointerup',()=>looking=false);
+  renderer.domElement.addEventListener('pointercancel',()=>looking=false);
+  const keys={};
+  addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(e.key===' '&&!jumping){jumping=true;jumpTime=0}});
+  addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
+  window.getKeyboard=()=>keys;
 }
-
-function resize() {
-  if (!camera || !renderer) return;
-  camera.aspect = innerWidth / innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(innerWidth, innerHeight);
+function resize(){
+  if(!camera||!renderer)return;
+  camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);
 }
-
-function animate() {
-  requestAnimationFrame(animate);
-  if (!ready) return;
-
-  const dt = Math.min(clock.getDelta(), 0.04);
-  const keys = window.getKeyboard ? window.getKeyboard() : {};
-
-  let mx = moveX;
-  let my = moveY;
-  if (keys.w || keys.arrowup) my = -1;
-  if (keys.s || keys.arrowdown) my = 1;
-  if (keys.a || keys.arrowleft) mx = -1;
-  if (keys.d || keys.arrowright) mx = 1;
-
-  const moving = Math.abs(mx) + Math.abs(my) > 0.12;
-  const speed = (running || keys.shift ? 10 : 5) * dt;
-
-  if (moving) {
-    const forward = new THREE.Vector3(-Math.sin(yaw), 0, -Math.cos(yaw));
-    const right = new THREE.Vector3(Math.cos(yaw), 0, -Math.sin(yaw));
-
-    const direction = new THREE.Vector3()
-      .addScaledVector(right, mx)
-      .addScaledVector(forward, -my);
-
-    if (direction.lengthSq() > 0) {
-      direction.normalize();
-      player.position.addScaledVector(direction, speed);
-      player.rotation.y = Math.atan2(direction.x, direction.z);
-    }
+function init(){
+  scene=new THREE.Scene();scene.background=new THREE.Color(0x9fc9df);scene.fog=new THREE.Fog(0x9fc9df,90,260);
+  camera=new THREE.PerspectiveCamera(65,innerWidth/innerHeight,.1,500);
+  renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});
+  renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));
+  renderer.shadowMap.enabled=false;renderer.outputColorSpace=THREE.SRGBColorSpace;root.appendChild(renderer.domElement);
+  clock=new THREE.Clock();
+  scene.add(new THREE.HemisphereLight(0xdceeff,0x65714d,2));
+  const sun=new THREE.DirectionalLight(0xffedcf,2.2);sun.position.set(-50,100,30);scene.add(sun);
+  createCity();createPlayer();setupControls();
+  camera.position.set(0,5,9);camera.lookAt(player.position);
+  addEventListener('resize',resize);ready=true;loading.style.display='none';
+}
+function animate(){
+  requestAnimationFrame(animate);if(!ready)return;
+  const dt=Math.min(clock.getDelta(),.04),keys=window.getKeyboard?window.getKeyboard():{};
+  let mx=moveX,my=moveY;
+  if(keys.w||keys.arrowup)my=-1;if(keys.s||keys.arrowdown)my=1;
+  if(keys.a||keys.arrowleft)mx=-1;if(keys.d||keys.arrowright)mx=1;
+  const moving=Math.abs(mx)+Math.abs(my)>.12,speed=(running||keys.shift?10:5)*dt;
+  if(moving){
+    const forward=new THREE.Vector3(-Math.sin(yaw),0,-Math.cos(yaw));
+    const right=new THREE.Vector3(Math.cos(yaw),0,-Math.sin(yaw));
+    const direction=new THREE.Vector3().addScaledVector(right,mx).addScaledVector(forward,-my);
+    if(direction.lengthSq()>0){direction.normalize();player.position.addScaledVector(direction,speed);player.rotation.y=Math.atan2(direction.x,direction.z)}
   }
-
-  // Jump arc
-  if (jumping) {
-    jumpTime += dt;
-    if (jumpTime > 0.75) {
-      jumping = false;
-      jumpTime = 0;
-    }
-  }
-  const jumpHeight = jumping ? Math.sin((jumpTime / 0.75) * Math.PI) * 1.5 : 0;
-  player.position.y = jumpHeight;
-
-  // Simple walking animation
-  const phase = performance.now() * 0.012;
-  player.userData.legs.forEach((leg, i) => {
-    leg.rotation.x = moving ? Math.sin(phase + i * Math.PI) * 0.55 : 0;
-  });
-  player.userData.arms.forEach((arm, i) => {
-    arm.rotation.x = moving ? Math.sin(phase + i * Math.PI + Math.PI) * 0.4 : 0;
-  });
-
-  // Smooth third-person follow camera
-  const distance = 7;
-  const horizontal = Math.cos(pitch) * distance;
-  const target = new THREE.Vector3(
-    player.position.x + Math.sin(yaw) * horizontal,
-    player.position.y + 3.0 + Math.sin(pitch) * distance,
-    player.position.z + Math.cos(yaw) * horizontal
-  );
-
-  camera.position.lerp(target, 1 - Math.exp(-5 * dt));
-  camera.lookAt(
-    player.position.x,
-    player.position.y + 1.2,
-    player.position.z
-  );
-
-  // Keep player inside the city area
-  player.position.x = THREE.MathUtils.clamp(player.position.x, -175, 175);
-  player.position.z = THREE.MathUtils.clamp(player.position.z, -175, 175);
-
-  renderer.render(scene, camera);
+  if(jumping){jumpTime+=dt;if(jumpTime>.75){jumping=false;jumpTime=0}}
+  player.position.y=jumping?Math.sin(jumpTime/.75*Math.PI)*1.5:0;
+  const phase=performance.now()*.012;
+  player.userData.legs.forEach((leg,i)=>leg.rotation.x=moving?Math.sin(phase+i*Math.PI)*.55:0);
+  player.userData.arms.forEach((arm,i)=>arm.rotation.x=moving?Math.sin(phase+i*Math.PI+Math.PI)*.4:0);
+  const distance=7,horizontal=Math.cos(pitch)*distance;
+  const target=new THREE.Vector3(player.position.x+Math.sin(yaw)*horizontal,player.position.y+3+Math.sin(pitch)*distance,player.position.z+Math.cos(yaw)*horizontal);
+  camera.position.lerp(target,1-Math.exp(-5*dt));
+  camera.lookAt(player.position.x,player.position.y+1.2,player.position.z);
+  player.position.x=THREE.MathUtils.clamp(player.position.x,-175,175);
+  player.position.z=THREE.MathUtils.clamp(player.position.z,-175,175);
+  renderer.render(scene,camera);
 }
 </script>
 </body>
