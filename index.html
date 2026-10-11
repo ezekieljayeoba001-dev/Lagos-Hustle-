@@ -93,12 +93,16 @@ import * as THREE from 'three';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 /* PUT YOUR SUPABASE PROJECT URL AND PUBLISHABLE KEY BELOW */
-const SUPABASE_URL = 'https://lurfrhnxltjvwtqqjmjd.supabase.co/rest/v1/';
+const SUPABASE_URL = 'https://lurfrhnxltjvwtqqjmjd.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_CT8e0uz4RNFd2SKTmNFtYQ_nrQVSuZq';
-const CONFIGURED = !SUPABASE_URL.includes('PASTE_') &&
-                   !SUPABASE_PUBLISHABLE_KEY.includes('PASTE_');
-const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 
+const CONFIGURED = !SUPABASE_PUBLISHABLE_KEY.includes('PASTE_');
+
+const supabase = createClient(
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY
+);
+  
 const authScreen = document.getElementById('auth');
 const authForm = document.getElementById('authForm');
 const authMsg = document.getElementById('authMsg');
