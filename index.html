@@ -1,270 +1,485 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="theme-color" content="#101a24">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#101b28">
 <title>Lagos Hustle</title>
+
 <style>
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#a9c8d9;font-family:Arial,sans-serif;color:white}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#9fc7dc;font-family:Arial,sans-serif;touch-action:none}
 #game{position:fixed;inset:0}
 canvas{display:block;width:100%;height:100%}
-#auth{position:fixed;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;padding:22px;background:linear-gradient(150deg,rgba(7,17,28,.84),rgba(7,17,28,.48)),linear-gradient(35deg,#273d36,#1b3046);overflow:auto}
-.panel{width:min(100%,390px);padding:26px 22px;border:1px solid #ffffff24;border-radius:24px;background:#111d2af2;box-shadow:0 22px 70px #0008}
-.logo{font-size:29px;font-weight:900;letter-spacing:-1px}.logo span{color:#52e0a0}
-.sub{color:#b8c7d4;font-size:13px;line-height:1.5;margin:8px 0 22px}
-.tabs{display:flex;padding:4px;background:#08121d;border-radius:12px;margin-bottom:18px}
-.tabs button{flex:1;border:0;border-radius:9px;padding:12px;color:#aab8c6;background:transparent;font-weight:bold}
-.tabs button.active{background:#26394a;color:white}
-.field{margin:12px 0}.field label{display:block;font-size:12px;color:#c2d0dc;margin-bottom:7px}
-.field input{width:100%;border:1px solid #344757;border-radius:11px;background:#091521;color:white;padding:14px;font-size:15px;outline:none}
-.field input:focus{border-color:#52e0a0}
-.primary{width:100%;border:0;border-radius:12px;padding:15px;background:#52e0a0;color:#092018;font-weight:900;font-size:15px;margin-top:10px}
-#authMsg{font-size:12px;color:#ffb6a9;line-height:1.4;margin-top:12px;min-height:16px}
-.small{font-size:11px;color:#8799aa;text-align:center;line-height:1.5;margin-top:12px}
-#hud{position:fixed;inset:0;z-index:2;pointer-events:none;display:none}
-.glass{background:#101c2bdb;border:1px solid #ffffff20;backdrop-filter:blur(8px);border-radius:14px;box-shadow:0 5px 20px #0002}
-#topbar{position:absolute;top:env(safe-area-inset-top,10px);left:12px;right:12px;padding:12px;display:flex;justify-content:space-between;align-items:center;gap:8px}
-#brand{font-size:15px;font-weight:900}#brand span{color:#52e0a0}
-#stats{font-size:11px;color:#d2dde7;margin-top:5px}
-#logout{pointer-events:auto;border:1px solid #ffffff28;background:#ffffff0d;color:white;padding:9px 11px;border-radius:10px;font-size:11px}
-#tip{position:absolute;top:90px;left:50%;transform:translateX(-50%);white-space:nowrap;padding:8px 12px;font-size:11px;color:#e6edf3}
-#joy{position:absolute;bottom:calc(28px + env(safe-area-inset-bottom,0px));left:22px;width:124px;height:124px;border-radius:50%;background:#101c2b75;border:2px solid #ffffff42;pointer-events:auto;touch-action:none}
-#stick{position:absolute;width:52px;height:52px;left:34px;top:34px;border-radius:50%;background:#d9f6e9e8;border:2px solid white;box-shadow:0 4px 14px #0004}
-#look{position:absolute;right:0;top:120px;bottom:0;width:48%;pointer-events:auto;touch-action:pan-y}
-#action{position:absolute;right:22px;bottom:calc(35px + env(safe-area-inset-bottom,0px));width:66px;height:66px;border-radius:50%;border:2px solid #ffffff9c;background:#52e0a0d9;color:#082019;font-weight:900;pointer-events:auto}
-#notice{position:absolute;left:50%;bottom:165px;transform:translateX(-50%);font-size:11px;color:white;background:#101c2bdb;border-radius:10px;padding:10px 14px;white-space:nowrap}
-@media(min-width:700px){#joy{width:140px;height:140px}#stick{left:42px;top:42px}#topbar{left:24px;right:24px}}
+#topbar{position:fixed;top:12px;left:12px;right:12px;display:flex;justify-content:space-between;align-items:center;pointer-events:none;gap:8px}
+.panel{background:#101b28e8;color:white;border:1px solid #ffffff25;border-radius:14px;padding:10px 13px;box-shadow:0 5px 20px #0002}
+.brand{font-weight:900;font-size:17px;letter-spacing:.4px}
+.small{font-size:11px;color:#b7c7d8;margin-top:4px}
+#status{font-size:12px;color:#80f0b0;margin-top:4px}
+#help{position:fixed;top:88px;left:12px;background:#101b28bd;color:white;padding:8px 11px;border-radius:10px;font-size:11px;pointer-events:none}
+#controls{position:fixed;bottom:22px;left:18px;right:18px;display:flex;align-items:end;justify-content:space-between;pointer-events:none}
+#joy{width:124px;height:124px;border-radius:50%;background:#101b2877;border:2px solid #ffffff77;position:relative;pointer-events:auto;touch-action:none}
+#knob{position:absolute;width:48px;height:48px;left:36px;top:36px;border-radius:50%;background:#e9f3ff;border:3px solid #5c8dff;box-shadow:0 3px 12px #0005}
+#buttons{display:flex;flex-direction:column;gap:10px;align-items:center;pointer-events:auto}
+.action{width:76px;height:58px;border-radius:17px;border:1px solid #ffffff65;background:#101b28dd;color:white;font-weight:bold;font-size:12px;touch-action:none}
+.action:active,.action.on{background:#2766d5}
+#look{position:fixed;right:18px;bottom:160px;color:white;font-size:10px;background:#101b2877;padding:7px 10px;border-radius:10px;pointer-events:none}
+#loading{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#101b28;color:white;font-weight:bold;z-index:10;text-align:center;padding:25px}
+#loading span{display:block;color:#b7c7d8;font-weight:normal;font-size:13px;margin-top:10px}
+#message{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);background:#101b28ed;color:white;padding:14px 18px;border-radius:14px;display:none;max-width:85%;text-align:center}
+@media(min-width:800px){#joy{width:140px;height:140px}#knob{left:42px;top:42px}#controls{left:35px;right:35px;bottom:30px}}
 </style>
+
 <script type="importmap">
-{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js"}}
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js"
+  }
+}
 </script>
 </head>
 <body>
 <div id="game"></div>
-<div id="auth">
+
+<div id="loading">
+  <div>LOADING LAGOS HUSTLE<span>Building your city...</span></div>
+</div>
+
+<div id="topbar">
   <div class="panel">
-    <div class="logo">LAGOS <span>HUSTLE</span></div>
-    <div class="sub">Your city. Your story. Build your hustle, explore the streets, and rise from the bottom.</div>
-    <div class="tabs"><button id="loginTab" class="active">LOGIN</button><button id="registerTab">CREATE ACCOUNT</button></div>
-    <form id="authForm">
-      <div class="field" id="usernameField" hidden><label for="username">PLAYER NAME</label><input id="username" autocomplete="username" minlength="3" maxlength="20" placeholder="e.g. LagosKing"></div>
-      <div class="field"><label for="identity">USERNAME OR EMAIL</label><input id="identity" autocomplete="username" required placeholder="Enter username or email"></div>
-      <div class="field" id="emailField" hidden><label for="email">EMAIL ADDRESS</label><input id="email" type="email" autocomplete="email" placeholder="you@example.com"></div>
-      <div class="field"><label for="password">PASSWORD</label><input id="password" type="password" autocomplete="current-password" minlength="10" maxlength="128" required placeholder="At least 10 characters"></div>
-      <button class="primary" id="submitBtn" type="submit">ENTER LAGOS</button>
-      <div id="authMsg" role="status"></div>
-    </form>
-    <div class="small">An internet connection is needed to load the 3D game and sign in.</div>
+    <div class="brand">LAGOS HUSTLE</div>
+    <div class="small">OPEN WORLD • PROTOTYPE</div>
+  </div>
+  <div class="panel" style="text-align:right">
+    <div id="location">Lagos Mainland</div>
+    <div id="status">● Exploring</div>
   </div>
 </div>
-<div id="hud">
-  <div id="topbar" class="glass">
-    <div><div id="brand">LAGOS <span>HUSTLE</span></div><div id="stats">Loading player...</div></div>
-    <button id="logout">LOG OUT</button>
+
+<div id="help">Drag joystick to move • Drag screen to look</div>
+
+<div id="controls">
+  <div id="joy"><div id="knob"></div></div>
+  <div id="buttons">
+    <button class="action" id="run">RUN</button>
+    <button class="action" id="jump">JUMP</button>
   </div>
-  <div id="tip" class="glass">DRAG RIGHT SIDE TO LOOK AROUND</div>
-  <div id="look" aria-label="Drag to rotate camera"></div>
-  <div id="joy"><div id="stick"></div></div>
-  <button id="action">PLAY</button>
-  <div id="notice">Welcome to Lagos. Explore the streets!</div>
 </div>
+
+<div id="look">CAMERA: TOUCH & DRAG</div>
+<div id="message"></div>
+
 <script type="module">
 import * as THREE from 'three';
 
-const $=id=>document.getElementById(id);
-const auth=$('auth'),hud=$('hud'),form=$('authForm');
-let mode='login',player=null,token=null,scene,camera,renderer,char,camYaw=0;
-let joyX=0,joyY=0,draggingJoy=false,lookActive=false,lastLookX=0;
-let started=false,clock=new THREE.Clock();
-const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const root = document.getElementById('game');
+const loading = document.getElementById('loading');
+const message = document.getElementById('message');
 
-function setMode(next){
- mode=next;
- $('loginTab').classList.toggle('active',mode==='login');
- $('registerTab').classList.toggle('active',mode==='register');
- $('usernameField').hidden=mode!=='register';
- $('emailField').hidden=mode!=='register';
- $('username').required=mode==='register';
- $('email').required=mode==='register';
- $('password').autocomplete=mode==='login'?'current-password':'new-password';
- $('submitBtn').textContent=mode==='login'?'ENTER LAGOS':'CREATE ACCOUNT';
- $('authMsg').textContent='';
+let scene, camera, renderer, player, clock;
+let yaw = 0, pitch = 0.25;
+let moveX = 0, moveY = 0, running = false;
+let jumping = false, jumpTime = 0;
+let ready = false;
+let lastLookX = 0, lastLookY = 0, looking = false;
+
+function showError(text) {
+  loading.style.display = 'flex';
+  loading.innerHTML = '<div>GAME COULD NOT LOAD<span>' +
+    text + '<br><br>Check your internet connection and reload.</span></div>';
 }
-$('loginTab').onclick=()=>setMode('login');
-$('registerTab').onclick=()=>setMode('register');
 
-form.addEventListener('submit',async e=>{
- e.preventDefault();
- const btn=$('submitBtn'),msg=$('authMsg');
- btn.disabled=true;btn.textContent='PLEASE WAIT...';msg.textContent='';
- try{
-  const payload=mode==='login'
-   ?{identity:$('identity').value.trim(),password:$('password').value}
-   :{username:$('username').value.trim(),email:$('email').value.trim(),password:$('password').value};
-  const response=await fetch(mode==='login'?'/api/login':'/api/register',{
-   method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)
-  });
-  const data=await response.json().catch(()=>({}));
-  if(!response.ok)throw new Error(data.error||'Could not sign in. Check your details and try again.');
-  player=data.player||data.user||null;
-  token=data.token||null;
-  if(!player)throw new Error('The server did not return player details. Check your worker response.');
-  enterGame();
- }catch(err){msg.textContent=err.message||'Connection failed. Please try again.';}
- finally{btn.disabled=false;btn.textContent=mode==='login'?'ENTER LAGOS':'CREATE ACCOUNT';}
-});
-
-function enterGame(){
- auth.style.display='none';hud.style.display='block';
- $('stats').textContent=(player.username||'Player')+'  •  ₦'+Number(player.money||0).toLocaleString()+'  •  Level '+(player.level||1);
- if(!started){started=true;init3D();}
- $('notice').textContent='Welcome, '+(player.username||'Player')+'!';
- setTimeout(()=>$('notice').style.display='none',4500);
+try {
+  init();
+  animate();
+} catch (error) {
+  console.error(error);
+  showError('Unable to initialize the 3D scene.');
 }
-$('logout').onclick=()=>{player=null;token=null;hud.style.display='none';auth.style.display='flex';setMode('login');$('password').value='';};
 
-function mat(color,roughness=0.9){return new THREE.MeshStandardMaterial({color,roughness});}
-function box(parent,w,h,d,x,y,z,material){
- const mesh=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);
- mesh.position.set(x,y,z);mesh.castShadow=true;mesh.receiveShadow=true;parent.add(mesh);return mesh;
+function init() {
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x9fc9df);
+  scene.fog = new THREE.Fog(0x9fc9df, 90, 260);
+
+  camera = new THREE.PerspectiveCamera(
+    65, innerWidth / innerHeight, 0.1, 500
+  );
+
+  renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+  renderer.setSize(innerWidth, innerHeight);
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
+  renderer.shadowMap.enabled = false;
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  root.appendChild(renderer.domElement);
+
+  clock = new THREE.Clock();
+
+  scene.add(new THREE.HemisphereLight(0xdceeff, 0x65714d, 2.0));
+
+  const sun = new THREE.DirectionalLight(0xffedcf, 2.2);
+  sun.position.set(-50, 100, 30);
+  scene.add(sun);
+
+  createCity();
+  createPlayer();
+  setupControls();
+
+  camera.position.set(0, 5, 9);
+  camera.lookAt(player.position);
+
+  addEventListener('resize', resize);
+  ready = true;
+  loading.style.display = 'none';
 }
-function init3D(){
- scene=new THREE.Scene();scene.background=new THREE.Color(0x9bbdce);scene.fog=new THREE.Fog(0x9bbdce,55,155);
- camera=new THREE.PerspectiveCamera(62,innerWidth/innerHeight,.1,300);
- renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});
- renderer.setPixelRatio(Math.min(devicePixelRatio,1.7));
- renderer.setSize(innerWidth,innerHeight);
- renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
- renderer.outputColorSpace=THREE.SRGBColorSpace;
- renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.15;
- $('game').appendChild(renderer.domElement);
 
- scene.add(new THREE.HemisphereLight(0xd8edff,0x625343,2.0));
- const sun=new THREE.DirectionalLight(0xffe3b5,3.1);sun.position.set(-25,40,18);sun.castShadow=true;
- sun.shadow.mapSize.set(1024,1024);sun.shadow.camera.left=-55;sun.shadow.camera.right=55;sun.shadow.camera.top=55;sun.shadow.camera.bottom=-55;
- sun.shadow.bias=-0.0005;scene.add(sun);
+function material(color, roughness = 0.9) {
+  return new THREE.MeshStandardMaterial({ color, roughness });
+}
 
- const ground=new THREE.Mesh(new THREE.PlaneGeometry(240,240),mat(0x777c70));
- ground.rotation.x=-Math.PI/2;ground.position.y=-.03;ground.receiveShadow=true;scene.add(ground);
- const roadMat=mat(0x353a3e),sideMat=mat(0xb0a99a),lineMat=mat(0xd9cda2);
- // Main intersecting roads and pavements
- for(let n=-6;n<=6;n++){
-  const pos=n*12;
-  const road1=box(scene,5,.06,150,pos,.01,0,roadMat);
-  const road2=box(scene,150,.06,5,0,.012,pos,roadMat);
-  box(scene,.22,.025,150,pos+2.25,.055,0,lineMat);
-  box(scene,150,.025,.22,0,.055,pos+2.25,lineMat);
-  box(scene,6,.16,150,pos-3,.02,0,sideMat);
-  box(scene,150,.16,6,0,.02,pos-3,sideMat);
- }
- // Rough plots, compound walls, houses and metal roofs
- const walls=[0xc6b99f,0xd7c9b4,0xb7c5bb,0xd1b19a,0xaaaeb0,0xe0d2b7].map(c=>mat(c));
- const roofMats=[0x5b6268,0x76584a,0x474e55].map(c=>mat(c));
- const windowMat=new THREE.MeshStandardMaterial({color:0x315466,roughness:.35,metalness:.15});
- const doorMat=mat(0x49372a),concrete=mat(0xaaa69b);
- for(let x=-60;x<=60;x+=12){
-  for(let z=-60;z<=60;z+=12){
-   if(Math.abs(x)<9||Math.abs(z)<9)continue;
-   const bx=x+(Math.random()-.5)*1.5,bz=z+(Math.random()-.5)*1.5;
-   const w=4+Math.random()*2,d=4+Math.random()*2,h=2.8+Math.random()*2.1;
-   box(scene,w+.8,.22,d+.8,bx,.14,bz,concrete);
-   box(scene,w,h,d,bx,h/2+.25,bz,walls[Math.floor(Math.random()*walls.length)]);
-   // Flat concrete roof and parapet, typical urban houses
-   box(scene,w+.12,.16,d+.12,bx,h+.25,bz,roofMats[Math.floor(Math.random()*roofMats.length)]);
-   box(scene,w,.18,.12,bx,h+.39,bz-d/2,concrete);
-   box(scene,w,.18,.12,bx,h+.39,bz+d/2,concrete);
-   box(scene,.12,.18,d,bx-w/2,h+.39,bz,concrete);
-   box(scene,.12,.18,d,bx+w/2,h+.39,bz,concrete);
-   box(scene,.85,1.55,.08,bx-w*.18,1.02,bz+d/2+.045,doorMat);
-   for(let wy=1.2;wy<h-.15;wy+=1.25){
-    for(let wx=-w/2+.55;wx<w/2-.3;wx+=1.35){
-     if(Math.abs(wx)<w*.25&&wy<1.8)continue;
-     box(scene,.65,.55,.07,bx+wx,wy+.25,bz+d/2+.05,windowMat);
-     box(scene,.72,.07,.09,bx+wx,wy+.25,bz+d/2+.09,concrete);
+function box(w, h, d, color, x, y, z, parent = scene) {
+  const mesh = new THREE.Mesh(
+    new THREE.BoxGeometry(w, h, d),
+    material(color)
+  );
+  mesh.position.set(x, y + h / 2, z);
+  parent.add(mesh);
+  return mesh;
+}
+
+function createCity() {
+  // Ground
+  const ground = new THREE.Mesh(
+    new THREE.PlaneGeometry(400, 400),
+    material(0x84966b)
+  );
+  ground.rotation.x = -Math.PI / 2;
+  ground.position.y = -0.08;
+  scene.add(ground);
+
+  // Main crossing roads
+  box(18, 0.12, 350, 0x343a40, 0, -0.03, 0);
+  box(350, 0.12, 18, 0x343a40, 0, -0.02, 0);
+
+  // Lane markings
+  for (let i = -160; i <= 160; i += 10) {
+    box(0.18, 0.015, 4, 0xf4e9b0, 0, 0.045, i);
+    box(4, 0.015, 0.18, 0xf4e9b0, i, 0.05, 0);
+  }
+
+  // City blocks
+  const colors = [
+    0xc7b39a, 0xd6c5ad, 0xb5c0c4, 0xe2d6c1,
+    0x9faeaa, 0xc2a58c, 0xb8b8ad, 0xd8b98b
+  ];
+
+  for (let x = -130; x <= 130; x += 25) {
+    for (let z = -130; z <= 130; z += 25) {
+      if (Math.abs(x) < 18 || Math.abs(z) < 18) continue;
+
+      const seed = Math.abs(Math.floor(x * 17 + z * 31));
+      const w = 9 + (seed % 7);
+      const d = 9 + ((seed * 3) % 7);
+      const h = 6 + ((seed * 7) % 27);
+
+      box(w, h, d, colors[seed % colors.length], x, 0, z);
+
+      // Windows
+      const windowMat = material(0x82b6c8, 0.4);
+      for (let wy = 2; wy < h - 1; wy += 3) {
+        for (let wx = -w / 2 + 1.4; wx < w / 2 - 0.5; wx += 2.5) {
+          const win = new THREE.Mesh(
+            new THREE.BoxGeometry(0.9, 1.15, 0.06),
+            windowMat
+          );
+          win.position.set(x + wx, wy, z + d / 2 + 0.035);
+          scene.add(win);
+        }
+      }
+
+      // Occasional rooftop structures
+      if (seed % 3 === 0) {
+        box(w * 0.35, 2, d * 0.35, 0xb0aaa0, x, h, z);
+      }
     }
-   }
   }
- }
- // Street trees and simple poles
- const trunk=mat(0x554333),leafMats=[0x416e48,0x527b46,0x3f6341].map(c=>mat(c));
- for(let x=-54;x<=54;x+=12){
-  for(let z=-54;z<=54;z+=12){
-   if(Math.abs(x)<12||Math.abs(z)<12||Math.random()>.45)continue;
-   box(scene,.22,1.7,.22,x,.85,z,trunk);
-   const crown=new THREE.Mesh(new THREE.IcosahedronGeometry(1.15,1),leafMats[Math.floor(Math.random()*leafMats.length)]);
-   crown.position.set(x,2.4,z);crown.castShadow=true;scene.add(crown);
+
+  // Streetlights along the central roads
+  for (let p = -70; p <= 70; p += 22) {
+    if (p === 0) continue;
+    for (const side of [-1, 1]) {
+      const x = side * 11.5;
+      const z = p;
+      box(0.18, 4, 0.18, 0x555b60, x, 0, z);
+      box(1.1, 0.12, 0.12, 0xe4d4a1, x + side * 0.4, 4, z);
+    }
   }
- }
- // Player character: feet at ground level, low body and head properly proportioned
- char=new THREE.Group();scene.add(char);char.position.set(0,0,2);
- const skin=mat(0x875638),shirt=mat(0x276c59),pants=mat(0x252d38),shoe=mat(0x15191e),hair=mat(0x171717);
- // Legs start at ground; no oversized floating torso
- box(char,.28,.82,.3,-.19,.47,0,pants);
- box(char,.28,.82,.3,.19,.47,0,pants);
- box(char,.3,.16,.48,-.19,.09,.07,shoe);
- box(char,.3,.16,.48,.19,.09,.07,shoe);
- box(char,.68,.72,.38,0,1.22,0,shirt);
- const head=new THREE.Mesh(new THREE.SphereGeometry(.235,16,12),skin);
- head.position.set(0,1.77,0);head.castShadow=true;char.add(head);
- const hairMesh=new THREE.Mesh(new THREE.SphereGeometry(.24,16,8,0,Math.PI*2,0,Math.PI*.48),hair);
- hairMesh.position.set(0,1.86,0);hairMesh.castShadow=true;char.add(hairMesh);
- // Arms attached at shoulders
- const armGeo=new THREE.CylinderGeometry(.085,.075,.62,8);
- for(const side of [-1,1]){
-  const arm=new THREE.Mesh(armGeo,skin);arm.position.set(side*.42,1.22,0);arm.rotation.z=side*-.12;arm.castShadow=true;char.add(arm);
- }
- const shadow=new THREE.Mesh(new THREE.CircleGeometry(.48,20),new THREE.MeshBasicMaterial({color:0x111111,transparent:true,opacity:.23}));
- shadow.rotation.x=-Math.PI/2;shadow.position.y=.035;char.add(shadow);
- camera.position.set(0,4,9);camera.lookAt(0,1,0);
- window.addEventListener('resize',resize);
- requestAnimationFrame(animate);
+
+  // Park trees
+  for (let i = 0; i < 24; i++) {
+    const x = 35 + (i % 6) * 5;
+    const z = -35 + Math.floor(i / 6) * 5;
+    box(0.45, 2.3, 0.45, 0x65452e, x, 0, z);
+    const leaves = new THREE.Mesh(
+      new THREE.SphereGeometry(1.7, 7, 6),
+      material(0x39734a)
+    );
+    leaves.position.set(x, 3.3, z);
+    scene.add(leaves);
+  }
+
+  // Park boundary
+  box(35, 0.2, 0.5, 0x50614a, 47.5, 0, -37);
 }
-function resize(){if(!renderer||!camera)return;camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);}
-function animate(){
- requestAnimationFrame(animate);if(!renderer||!char)return;
- const dt=Math.min(clock.getDelta(),.05);
- const speed=4.0;
- if(Math.abs(joyX)>.04||Math.abs(joyY)>.04){
-  const forward=-joyY,right=joyX;
-  const dx=(right*Math.cos(camYaw)+forward*Math.sin(camYaw))*speed*dt;
-  const dz=(-right*Math.sin(camYaw)+forward*Math.cos(camYaw))*speed*dt;
-  char.position.x=clamp(char.position.x+dx,-68,68);
-  char.position.z=clamp(char.position.z+dz,-68,68);
-  char.rotation.y=Math.atan2(dx,dz);
- }
- // Camera follows at character height instead of looking down from far above
- const distance=6.3;
- camera.position.x=char.position.x+Math.sin(camYaw)*distance;
- camera.position.z=char.position.z+Math.cos(camYaw)*distance;
- camera.position.y=2.9;
- camera.lookAt(char.position.x,1.05,char.position.z);
- renderer.render(scene,camera);
+
+function createPlayer() {
+  player = new THREE.Group();
+  scene.add(player);
+
+  const skin = material(0x8b5938);
+  const shirt = material(0x2465b6);
+  const trousers = material(0x252d39);
+  const shoes = material(0x16191e);
+
+  const body = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.36, 0.43, 1.05, 10),
+    shirt
+  );
+  body.position.y = 1.25;
+  player.add(body);
+
+  const head = new THREE.Mesh(
+    new THREE.SphereGeometry(0.32, 12, 10),
+    skin
+  );
+  head.position.y = 2.02;
+  player.add(head);
+
+  const hair = new THREE.Mesh(
+    new THREE.SphereGeometry(0.325, 12, 6, 0, Math.PI * 2, 0, Math.PI * 0.48),
+    material(0x171512)
+  );
+  hair.position.y = 2.13;
+  player.add(hair);
+
+  const leftLeg = new THREE.Mesh(
+    new THREE.BoxGeometry(0.25, 0.7, 0.29), trousers
+  );
+  leftLeg.position.set(-0.19, 0.43, 0);
+  player.add(leftLeg);
+
+  const rightLeg = leftLeg.clone();
+  rightLeg.position.x = 0.19;
+  player.add(rightLeg);
+
+  const leftArm = new THREE.Mesh(
+    new THREE.CapsuleGeometry(0.13, 0.53, 3, 6), skin
+  );
+  leftArm.position.set(-0.48, 1.28, 0);
+  leftArm.rotation.z = -0.12;
+  player.add(leftArm);
+
+  const rightArm = leftArm.clone();
+  rightArm.position.x = 0.48;
+  rightArm.rotation.z = 0.12;
+  player.add(rightArm);
+
+  const leftShoe = new THREE.Mesh(
+    new THREE.BoxGeometry(0.3, 0.16, 0.42), shoes
+  );
+  leftShoe.position.set(-0.19, 0.09, -0.06);
+  player.add(leftShoe);
+
+  const rightShoe = leftShoe.clone();
+  rightShoe.position.x = 0.19;
+  player.add(rightShoe);
+
+  player.userData.legs = [leftLeg, rightLeg];
+  player.userData.arms = [leftArm, rightArm];
+  player.position.set(0, 0, 8);
 }
-// Touch joystick, mouse and pointer support
-const joy=$('joy'),stick=$('stick');
-function moveJoy(e){
- const r=joy.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;
- let dx=e.clientX-cx,dy=e.clientY-cy;const max=37,len=Math.hypot(dx,dy);
- if(len>max){dx=dx/len*max;dy=dy/len*max;}
- joyX=dx/max;joyY=dy/max;
- stick.style.transform='translate('+dx+'px,'+dy+'px)';
+
+function setupControls() {
+  const joy = document.getElementById('joy');
+  const knob = document.getElementById('knob');
+  let joyPointer = null;
+
+  function updateJoy(e) {
+    const r = joy.getBoundingClientRect();
+    const cx = r.left + r.width / 2;
+    const cy = r.top + r.height / 2;
+    let dx = e.clientX - cx;
+    let dy = e.clientY - cy;
+    const max = r.width * 0.31;
+    const len = Math.hypot(dx, dy);
+    if (len > max) {
+      dx *= max / len;
+      dy *= max / len;
+    }
+    moveX = dx / max;
+    moveY = dy / max;
+    knob.style.transform = `translate(${dx}px,${dy}px)`;
+  }
+
+  joy.addEventListener('pointerdown', e => {
+    joyPointer = e.pointerId;
+    joy.setPointerCapture(e.pointerId);
+    updateJoy(e);
+  });
+
+  joy.addEventListener('pointermove', e => {
+    if (e.pointerId === joyPointer) updateJoy(e);
+  });
+
+  function releaseJoy(e) {
+    if (e.pointerId !== joyPointer) return;
+    joyPointer = null;
+    moveX = moveY = 0;
+    knob.style.transform = 'translate(0px,0px)';
+  }
+
+  joy.addEventListener('pointerup', releaseJoy);
+  joy.addEventListener('pointercancel', releaseJoy);
+
+  const runButton = document.getElementById('run');
+  runButton.addEventListener('pointerdown', e => {
+    e.preventDefault();
+    running = true;
+    runButton.classList.add('on');
+  });
+  ['pointerup','pointercancel','pointerleave'].forEach(ev =>
+    runButton.addEventListener(ev, () => {
+      running = false;
+      runButton.classList.remove('on');
+    })
+  );
+
+  const jumpButton = document.getElementById('jump');
+  jumpButton.addEventListener('pointerdown', e => {
+    e.preventDefault();
+    if (!jumping) {
+      jumping = true;
+      jumpTime = 0;
+    }
+  });
+
+  // Drag on the open screen to rotate the camera.
+  renderer.domElement.addEventListener('pointerdown', e => {
+    if (e.clientX < innerWidth * 0.25 ||
+        e.clientY > innerHeight * 0.65) return;
+    looking = true;
+    lastLookX = e.clientX;
+    lastLookY = e.clientY;
+    renderer.domElement.setPointerCapture(e.pointerId);
+  });
+
+  renderer.domElement.addEventListener('pointermove', e => {
+    if (!looking) return;
+    const dx = e.clientX - lastLookX;
+    const dy = e.clientY - lastLookY;
+    lastLookX = e.clientX;
+    lastLookY = e.clientY;
+    yaw -= dx * 0.006;
+    pitch = THREE.MathUtils.clamp(pitch + dy * 0.003, -0.15, 0.8);
+  });
+
+  function stopLook() { looking = false; }
+  renderer.domElement.addEventListener('pointerup', stopLook);
+  renderer.domElement.addEventListener('pointercancel', stopLook);
+
+  // Keyboard support for testing on computers.
+  const keys = {};
+  addEventListener('keydown', e => {
+    keys[e.key.toLowerCase()] = true;
+    if (e.key === ' ') jumping = true;
+  });
+  addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
+
+  window.getKeyboard = () => keys;
 }
-joy.addEventListener('pointerdown',e=>{draggingJoy=true;joy.setPointerCapture(e.pointerId);moveJoy(e);});
-joy.addEventListener('pointermove',e=>{if(draggingJoy)moveJoy(e);});
-function stopJoy(){draggingJoy=false;joyX=0;joyY=0;stick.style.transform='translate(0,0)';}
-joy.addEventListener('pointerup',stopJoy);joy.addEventListener('pointercancel',stopJoy);
-const look=$('look');
-look.addEventListener('pointerdown',e=>{lookActive=true;lastLookX=e.clientX;look.setPointerCapture(e.pointerId);});
-look.addEventListener('pointermove',e=>{if(!lookActive)return;camYaw-= (e.clientX-lastLookX)*.006;lastLookX=e.clientX;});
-look.addEventListener('pointerup',()=>lookActive=false);
-look.addEventListener('pointercancel',()=>lookActive=false);
-$('action').addEventListener('click',()=>{
- $('notice').style.display='block';
- $('notice').textContent='Explore the city with the joystick. Jobs and missions are coming next!';
- setTimeout(()=>$('notice').style.display='none',3200);
-});
+
+function resize() {
+  if (!camera || !renderer) return;
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+}
+
+function animate() {
+  requestAnimationFrame(animate);
+  if (!ready) return;
+
+  const dt = Math.min(clock.getDelta(), 0.04);
+  const keys = window.getKeyboard ? window.getKeyboard() : {};
+
+  let mx = moveX;
+  let my = moveY;
+  if (keys.w || keys.arrowup) my = -1;
+  if (keys.s || keys.arrowdown) my = 1;
+  if (keys.a || keys.arrowleft) mx = -1;
+  if (keys.d || keys.arrowright) mx = 1;
+
+  const moving = Math.abs(mx) + Math.abs(my) > 0.12;
+  const speed = (running || keys.shift ? 10 : 5) * dt;
+
+  if (moving) {
+    const forward = new THREE.Vector3(-Math.sin(yaw), 0, -Math.cos(yaw));
+    const right = new THREE.Vector3(Math.cos(yaw), 0, -Math.sin(yaw));
+
+    const direction = new THREE.Vector3()
+      .addScaledVector(right, mx)
+      .addScaledVector(forward, -my);
+
+    if (direction.lengthSq() > 0) {
+      direction.normalize();
+      player.position.addScaledVector(direction, speed);
+      player.rotation.y = Math.atan2(direction.x, direction.z);
+    }
+  }
+
+  // Jump arc
+  if (jumping) {
+    jumpTime += dt;
+    if (jumpTime > 0.75) {
+      jumping = false;
+      jumpTime = 0;
+    }
+  }
+  const jumpHeight = jumping ? Math.sin((jumpTime / 0.75) * Math.PI) * 1.5 : 0;
+  player.position.y = jumpHeight;
+
+  // Simple walking animation
+  const phase = performance.now() * 0.012;
+  player.userData.legs.forEach((leg, i) => {
+    leg.rotation.x = moving ? Math.sin(phase + i * Math.PI) * 0.55 : 0;
+  });
+  player.userData.arms.forEach((arm, i) => {
+    arm.rotation.x = moving ? Math.sin(phase + i * Math.PI + Math.PI) * 0.4 : 0;
+  });
+
+  // Smooth third-person follow camera
+  const distance = 7;
+  const horizontal = Math.cos(pitch) * distance;
+  const target = new THREE.Vector3(
+    player.position.x + Math.sin(yaw) * horizontal,
+    player.position.y + 3.0 + Math.sin(pitch) * distance,
+    player.position.z + Math.cos(yaw) * horizontal
+  );
+
+  camera.position.lerp(target, 1 - Math.exp(-5 * dt));
+  camera.lookAt(
+    player.position.x,
+    player.position.y + 1.2,
+    player.position.z
+  );
+
+  // Keep player inside the city area
+  player.position.x = THREE.MathUtils.clamp(player.position.x, -175, 175);
+  player.position.z = THREE.MathUtils.clamp(player.position.z, -175, 175);
+
+  renderer.render(scene, camera);
+}
 </script>
 </body>
 </html>
