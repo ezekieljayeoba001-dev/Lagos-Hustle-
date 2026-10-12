@@ -353,8 +353,7 @@ function createCity() {
       const color = colors[seed % colors.length];
 
       // Main building body
-      box(w, h, d, color, x, h / 2, z);
-
+      box(w, h, d, colors[seed % colors.length], x, h / 2, z);
       // Flat rooftop and small rooftop structures
       box(w + 0.15, 0.25, d + 0.15, roofMat, x, h + 0.08, z);
 
