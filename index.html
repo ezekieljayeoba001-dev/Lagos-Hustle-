@@ -286,43 +286,177 @@ function box(w,h,d,color,x,y,z,parent=scene) {
   parent.add(mesh);
   return mesh;
 }
+
 function createCity() {
-  const ground = new THREE.Mesh(new THREE.PlaneGeometry(400,400), material(0x84966b));
-  ground.rotation.x = -Math.PI/2;
-  ground.position.y = -0.08;
+  const ground = new THREE.Mesh(
+    new THREE.PlaneGeometry(400, 400),
+    material(0x89916b)
+  );
+  ground.rotation.x = -Math.PI / 2;
+  ground.position.y = -0.12;
   scene.add(ground);
-  box(18,.12,350,0x343a40,0,-.03,0);
-  box(350,.12,18,0x343a40,0,-.02,0);
-  for(let i=-160;i<=160;i+=10){
-    box(.18,.015,4,0xf4e9b0,0,.045,i);
-    box(4,.015,.18,0xf4e9b0,i,.05,0);
+
+  // Main asphalt roads
+  box(18, 0.16, 350, 0x292e32, 0, -0.03, 0);
+  box(350, 0.16, 18, 0x292e32, 0, -0.02, 0);
+
+  // Road shoulders and concrete sidewalks
+  for (const side of [-1, 1]) {
+    box(2.5, 0.22, 350, 0xaaa69b, side * 10.2, 0.02, 0);
+    box(350, 0.22, 2.5, 0xaaa69b, 0, 0.02, side * 10.2);
+
+    box(1.4, 0.12, 350, 0x777a77, side * 12.15, 0.04, 0);
+    box(350, 0.12, 1.4, 0x777a77, 0, 0.04, side * 12.15);
   }
-  const colors=[0xc7b39a,0xd6c5ad,0xb5c0c4,0xe2d6c1,0x9faeaa,0xc2a58c,0xb8b8ad,0xd8b98b];
-  const windowMat=material(0x82b6c8,.4);
-  for(let x=-130;x<=130;x+=25) for(let z=-130;z<=130;z+=25){
-    if(Math.abs(x)<18||Math.abs(z)<18) continue;
-    const seed=Math.abs(Math.floor(x*17+z*31));
-    const w=9+seed%7,d=9+(seed*3)%7,h=6+(seed*7)%27;
-    box(w,h,d,colors[seed%colors.length],x,0,z);
-    for(let wy=2;wy<h-1;wy+=3) for(let wx=-w/2+1.4;wx<w/2-.5;wx+=2.5){
-      const win=new THREE.Mesh(new THREE.BoxGeometry(.9,1.15,.06),windowMat);
-      win.position.set(x+wx,wy,z+d/2+.035);
-      scene.add(win);
+
+  // Broken yellow road markings
+  for (let i = -165; i <= 165; i += 12) {
+    box(0.16, 0.025, 5, 0xf4d66c, 0, 0.07, i);
+    box(5, 0.025, 0.16, 0xf4d66c, i, 0.07, 0);
+  }
+
+  // Road-edge white lines
+  for (const side of [-1, 1]) {
+    box(0.12, 0.025, 350, 0xe7e4d8, side * 7.8, 0.07, 0);
+    box(350, 0.025, 0.12, 0xe7e4d8, 0, 0.07, side * 7.8);
+  }
+
+  // Building colors inspired by Lagos streets
+  const colors = [
+    0xc8b49a, 0xd7c8b2, 0xb6c0c2, 0xe4d6bf,
+    0x9eaaa4, 0xc4a58b, 0xb7b5aa, 0xd7b98b,
+    0xd4c1a4, 0xaaa69b
+  ];
+
+  const windowMat = material(0x78b6d0, 0.35);
+  const darkMat = material(0x34383a);
+  const roofMat = material(0x77766f);
+
+  // Buildings around the road grid
+  for (let x = -130; x <= 130; x += 25) {
+    for (let z = -130; z <= 130; z += 25) {
+      if (Math.abs(x) < 20 || Math.abs(z) < 20) continue;
+
+      const seed = Math.abs(Math.floor(x * 17 + z * 31));
+      const w = 9 + seed % 7;
+      const d = 9 + (seed * 3) % 7;
+      const h = 7 + (seed * 7) % 25;
+      const color = colors[seed % colors.length];
+
+      // Main building body
+      box(w, h, d, color, x, h / 2, z);
+
+      // Flat rooftop and small rooftop structures
+      box(w + 0.15, 0.25, d + 0.15, roofMat, x, h + 0.08, z);
+
+      if (seed % 3 === 0) {
+        box(w * 0.35, 1.5, d * 0.35, color, x, h + 0.9, z);
+      }
+
+      // Front windows and dark window frames
+      for (let wy = 2; wy < h - 1; wy += 3) {
+        for (let wx = -w / 2 + 1.4; wx < w / 2 - 0.5; wx += 2.5) {
+          box(
+            1.05, 1.35, 0.10,
+            darkMat, x + wx, wy, z + d / 2 + 0.06
+          );
+
+          box(
+            0.84, 1.12, 0.035,
+            0x75b4cb, x + wx, wy, z + d / 2 + 0.125
+          );
+        }
+      }
+
+      // Street-facing shopfronts on selected buildings
+      if (seed % 2 === 0) {
+        box(
+          w * 0.48, 1.8, 0.12,
+          0x66513d, x, 1.0, z + d / 2 + 0.12
+        );
+        box(
+          w * 0.43, 0.75, 0.04,
+          0x3d8791, x, 1.05, z + d / 2 + 0.21
+        );
+        box(
+          w * 0.55, 0.18, 0.8,
+          0xb84b36, x, 2.05, z + d / 2 + 0.3
+        );
+      }
+
+      // Small roadside entrance steps
+      box(2.5, 0.18, 1.0, 0xaaa69b, x, 0.12, z + d / 2 + 0.7);
     }
-    if(seed%3===0) box(w*.35,2,d*.35,0xb0aaa0,x,h,z);
   }
-  for(let p=-70;p<=70;p+=22) if(p!==0) for(const side of [-1,1]){
-    box(.18,4,.18,0x555b60,side*11.5,0,p);
-    box(1.1,.12,.12,0xe4d4a1,side*11.5+side*.4,4,p);
+
+  // Streetlights along the central roads
+  for (let p = -70; p <= 70; p += 22) {
+    if (p === 0) continue;
+
+    for (const side of [-1, 1]) {
+      const lx = side * 11.5;
+      const lz = p;
+
+      box(0.18, 4.5, 0.18, 0x44494c, lx, 2.25, lz);
+      box(1.0, 0.12, 0.12, 0xe4d4a1, lx + side * 0.4, 4.5, lz);
+      box(0.25, 0.16, 0.22, 0xf3d58b, lx + side * 0.82, 4.42, lz);
+    }
   }
-  for(let i=0;i<24;i++){
-    const x=35+(i%6)*5,z=-35+Math.floor(i/6)*5;
-    box(.45,2.3,.45,0x65452e,x,0,z);
-    const leaves=new THREE.Mesh(new THREE.SphereGeometry(1.7,7,6),material(0x39734a));
-    leaves.position.set(x,3.3,z);scene.add(leaves);
+
+  // Tropical roadside trees
+  function palmTree(x, z, scale = 1) {
+    const trunkMat = material(0x755037);
+    const leafMat = material(0x347347);
+
+    box(
+      0.45 * scale, 3.3 * scale, 0.45 * scale,
+      0x755037, x, 1.65 * scale, z
+    );
+
+    const crownY = 3.3 * scale;
+
+    // Broad green crown
+    const crown = new THREE.Mesh(
+      new THREE.SphereGeometry(1.65 * scale, 10, 8),
+      leafMat
+    );
+    crown.position.set(x, crownY, z);
+    scene.add(crown);
+
+    // Palm-like fronds
+    for (let a = 0; a < 8; a++) {
+      const angle = a * Math.PI / 4;
+      const frond = new THREE.Mesh(
+        new THREE.BoxGeometry(0.28 * scale, 0.12 * scale, 2.3 * scale),
+        leafMat
+      );
+
+      frond.position.set(
+        x + Math.sin(angle) * 0.9 * scale,
+        crownY + 0.15 * scale,
+        z + Math.cos(angle) * 0.9 * scale
+      );
+
+      frond.rotation.y = angle;
+      frond.rotation.x = -0.25;
+      scene.add(frond);
+    }
   }
-  box(35,.2,.5,0x50614a,47.5,0,-37);
+
+  // Trees placed beside roads, away from the center
+  for (let p = -80; p <= 80; p += 20) {
+    if (p === 0) continue;
+
+    for (const side of [-1, 1]) {
+      palmTree(side * 15.5, p, 0.8);
+      palmTree(p, side * 15.5, 0.7);
+    }
+  }
+
+  // Small landscaped green area
+  box(35, 0.2, 0.5, 0x50614a, 47.5, 0, -37);
 }
+
 function createPlayer(){
   player=new THREE.Group();scene.add(player);
   const skin=material(0x8b5938),shirt=material(0x2465b6),trousers=material(0x252d39),shoes=material(0x16191e);
